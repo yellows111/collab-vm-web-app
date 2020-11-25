@@ -126,6 +126,8 @@ function addTableRow(table, user, userData) {
 	var data = document.createElement("LI");
 	data.className = "list-group-item";
 	data.innerHTML = user;
+	if (usersData[username][0] == 2)
+		data.innerHTML += " (<a href='javascript:void(0);' onclick='tunnel.sendMessage(\"admin\",12,\"" + user + "\");'>Ban</a>)";
 	var rank = getRankClass(userData[0]);
 	if (rank)
 		data.className += " " + rank;
