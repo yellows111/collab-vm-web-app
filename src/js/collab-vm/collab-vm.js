@@ -445,6 +445,13 @@ function setVoteStats(parameters) {
 	if (!hasVoted) {
 		$("#vote-alert").show();
 	}
+
+	if (usersData[username][0] == 2)
+	{
+		$("#vote-cancel").show();
+	} else {
+		$("#vote-cancel").hide();
+	}
 }
 
 /**
@@ -757,6 +764,11 @@ function InitalizeGuacamoleClient() {
 
 				var rank = parseInt(parameters[i+1]);
 				usersData[parameters[i]] = [rank, 0];
+				// instantly update stuff if the user logs in as admin
+				if (rank == 2 && parameters[i] === username)
+				{
+					$("#vote-cancel").show();
+				}
 			}
 		}
 		displayTable();
@@ -1028,6 +1040,10 @@ $(function() {
 			tunnel.sendMessage("vote", "0");
 			$("#vote-alert").hide();
 		}
+	});
+
+	$("#vote-cancel").click(function() {
+		tunnel.sendMessage("admin", "13");
 	});
 	
 	$("#vote-dismiss").click(function() {
