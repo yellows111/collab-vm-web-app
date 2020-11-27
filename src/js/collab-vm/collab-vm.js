@@ -561,6 +561,8 @@ function InitalizeGuacamoleClient() {
 			username = null;
 			setFocus(false);
 			hasTurn = false;
+			$("#turn-btn").show();
+			$("#end-turn-btn").hide();
 			if (turnInterval !== null) {
 				clearInterval(turnInterval);
 				turnInterval = null;
@@ -626,6 +628,9 @@ function InitalizeGuacamoleClient() {
 		if (num > 2 && parameters[2] == username) {
 			// The user has control
 			hasTurn = true;
+			$("#turn-btn").hide();
+			$("#end-turn-btn").show();
+			
 			display.className = "focused";
 			if (turnInterval !== null)
 				clearInterval(turnInterval);
@@ -641,6 +646,8 @@ function InitalizeGuacamoleClient() {
 		} else if (parameters.length > num) {
 			// The user is waiting for control
 			hasTurn = false;
+			$("#turn-btn").hide();
+			$("#end-turn-btn").show();
 			display.className = "waiting";
 			if (turnInterval !== null)
 				clearInterval(turnInterval);
@@ -655,6 +662,8 @@ function InitalizeGuacamoleClient() {
 		} else {
 			if (hasTurn) {
 				hasTurn = false;
+				$("#turn-btn").show();
+				$("#end-turn-btn").hide();
 				display.className = "";
 			}
 			if (turnInterval !== null) {
@@ -738,6 +747,8 @@ function InitalizeGuacamoleClient() {
 				connected = false;
 				//cancelUpload = true;
 				hasTurn = false;
+				$("#turn-btn").show();
+				$("#end-turn-btn").hide();
 				if (turnInterval !== null)
 					clearInterval(turnInterval);
 				if (voteInterval !== null)
@@ -1014,6 +1025,11 @@ $(function() {
 	$("#turn-btn").click(function() {
 		if(tunnel.state == Guacamole.Tunnel.State.OPEN)
 			tunnel.sendMessage("turn");
+	});
+
+	$("#end-turn-btn").click(function() {
+		if(tunnel.state == Guacamole.Tunnel.State.OPEN)
+			tunnel.sendMessage("turn","0");
 	});
 	
 	$(window).resize(function() {
