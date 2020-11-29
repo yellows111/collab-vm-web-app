@@ -125,9 +125,18 @@ function getRankClass(rank) {
 function addTableRow(table, user, userData) {
 	var data = document.createElement("LI");
 	data.className = "list-group-item";
-	data.innerHTML = user;
-	if (usersData[username][0] == 2)
-		data.innerHTML += " (<a href='javascript:void(0);' onclick='tunnel.sendMessage(\"admin\",12,\"" + user + "\");'>Ban</a> | <a href='javascript:void(0);' onclick='tunnel.sendMessage(\"admin\",14,\"" + user + "\");'>Mute</a>)";
+	
+	var userHTML;
+	if (usersData[username][0] == 2 && user !== username) {
+		userHTML = "<div class='dropdown-toggle' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>" + user + "<span class='caret'></span></div><ul class='dropdown-menu'>";
+		userHTML += "<li><a href='#' onclick='tunnel.sendMessage(\"admin\",12,\"" + user + "\");return false;'>Ban</a></li>";
+		userHTML += "<li><a href='#' onclick='tunnel.sendMessage(\"admin\",14,\"" + user + "\");return false;'>Mute</a></li>";
+		userHTML += "</ul>";
+	} else {
+		userHTML = user;
+	}
+	data.innerHTML = userHTML;
+	
 	var rank = getRankClass(userData[0]);
 	if (rank)
 		data.className += " " + rank;
