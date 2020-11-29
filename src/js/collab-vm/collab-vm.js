@@ -130,7 +130,9 @@ function addTableRow(table, user, userData) {
 	if (usersData[username][0] == 2 && user !== username) {
 		userHTML = "<div class='dropdown-toggle' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>" + user + "<span class='caret'></span></div><ul class='dropdown-menu'>";
 		userHTML += "<li><a href='#' onclick='tunnel.sendMessage(\"admin\",12,\"" + user + "\");return false;'>Ban</a></li>";
-		userHTML += "<li><a href='#' onclick='tunnel.sendMessage(\"admin\",14,\"" + user + "\");return false;'>Mute</a></li>";
+		userHTML += "<li><a href='#' onclick='tunnel.sendMessage(\"admin\",14,\"" + user + "\",0);return false;'>Temporary Mute</a></li>";
+		userHTML += "<li><a href='#' onclick='tunnel.sendMessage(\"admin\",14,\"" + user + "\",1);return false;'>Indefinite Mute</a></li>";
+		userHTML += "<li><a href='#' onclick='tunnel.sendMessage(\"admin\",14,\"" + user + "\",2);return false;'>Unmute</a></li>";
 		userHTML += "</ul>";
 	} else {
 		userHTML = user;
