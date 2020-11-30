@@ -671,14 +671,16 @@ function InitalizeGuacamoleClient() {
 					}
 				}, Math.round(parseInt(parameters[parameters.length-1])/1000)*1000);
 		} else {
-			hasTurn = false;
-			if (turnInterval !== null) {
-				clearInterval(turnInterval);
-				turnInterval = null;
+			if (turnInterval !== null || hasTurn) {
+				hasTurn = false;
 				$("#status").html("");
 				$("#turn-btn").show();
 				$("#end-turn-btn").hide();
 				display.className = "";
+				if (turnInterval !== null) {
+					clearInterval(turnInterval);
+					turnInterval = null;
+				}
 			}
 		}
 		activateOSK(hasTurn);
