@@ -401,7 +401,8 @@ function updateVMList(list) {
 					e.preventDefault();
 					var name =  this.getAttribute("href").substr(this.getAttribute("href").lastIndexOf('/')+1);
 					debugLog("connect " + name);
-					tunnel.sendMessage("connect", name);
+					vmName = name;
+					tunnel.sendMessage("connect", vmName);
 				}
 			});
 			// If there is an image and the NSFW warning is visible, it should be censored
@@ -574,6 +575,8 @@ function InitalizeGuacamoleClient() {
 			hasTurn = false;
 			$("#turn-btn").show();
 			$("#end-turn-btn").hide();
+			$("#vote-cancel").hide();
+			$("#admin-btns").hide();
 			if (turnInterval !== null) {
 				clearInterval(turnInterval);
 				turnInterval = null;
@@ -790,6 +793,7 @@ function InitalizeGuacamoleClient() {
 				if (rank == 2 && parameters[i] === username)
 				{
 					$("#vote-cancel").show();
+					$("#admin-btns").show();
 				}
 			}
 		}
@@ -1165,6 +1169,14 @@ $(function() {
 			$("#upload-wait-time").html("Uploading...");
 		});
 	}
+	
+	$("#restore-btn").click(function() {
+		tunnel.sendMessage("admin", "8", vmName);
+	});
+	
+	$("#reboot-btn").click(function() {
+		tunnel.sendMessage("admin", "10", vmName);
+	});
 	
 	$("#home-btn").attr("href", rootDir).click(function(e) {
 		// Check that the link was clicked with the left mouse button
