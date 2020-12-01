@@ -13,6 +13,7 @@ var maxChatMsgHistory = 100;
  * @type {boolean}
  */
 var hasTurn = false;
+var modPerms = 0;
 var turnInterval = null;
 var voteInterval = null;
 var uploadInterval = null;
@@ -119,6 +120,8 @@ function getRankClass(rank) {
 			return "user";
 		case 2: // Admin
 			return "admin";
+		case 3: // Moderator
+			return "moderator";
 	}
 }
 
@@ -127,12 +130,15 @@ function addTableRow(table, user, userData) {
 	data.className = "list-group-item";
 	
 	var userHTML;
-	if (usersData[username][0] == 2 && user !== username) {
+	if ((usersData[username][0] == 2 || (usersData[username][0] == 3 && modPerms & 20)) && user !== username) {
 		userHTML = "<div class='dropdown-toggle' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>" + user + "<span class='caret'></span></div><ul class='dropdown-menu'>";
-		userHTML += "<li><a href='#' onclick='tunnel.sendMessage(\"admin\",12,\"" + user + "\");return false;'>Ban</a></li>";
-		userHTML += "<li><a href='#' onclick='tunnel.sendMessage(\"admin\",14,\"" + user + "\",0);return false;'>Temporary Mute</a></li>";
-		userHTML += "<li><a href='#' onclick='tunnel.sendMessage(\"admin\",14,\"" + user + "\",1);return false;'>Indefinite Mute</a></li>";
-		userHTML += "<li><a href='#' onclick='tunnel.sendMessage(\"admin\",14,\"" + user + "\",2);return false;'>Unmute</a></li>";
+		if (usersData[username][0] == 2 || (usersData[username][0] == 3 && modPerms & 4))
+			userHTML += "<li><a href='#' onclick='tunnel.sendMessage(\"admin\",12,\"" + user + "\");return false;'>Ban</a></li>";
+		if (usersData[username][0] == 2 || (usersData[username][0] == 3 && modPerms & 16)) {
+			userHTML += "<li><a href='#' onclick='tunnel.sendMessage(\"admin\",14,\"" + user + "\",0);return false;'>Temporary Mute</a></li>";
+			userHTML += "<li><a href='#' onclick='tunnel.sendMessage(\"admin\",14,\"" + user + "\",1);return false;'>Indefinite Mute</a></li>";
+			userHTML += "<li><a href='#' onclick='tunnel.sendMessage(\"admin\",14,\"" + user + "\",2);return false;'>Unmute</a></li>";
+		}
 		userHTML += "</ul>";
 	} else {
 		userHTML = user;
@@ -776,6 +782,11 @@ function InitalizeGuacamoleClient() {
 		}
 	};
 	
+	guac.onadmin = function(parameters) {
+		if (parameters[0] == "0" && parameters[1] == "3")
+			modPerms = parseInt(parameters[2]);
+	};
+	
 	guac.onadduser = function(parameters) {
 		debugLog("Add user: ");
 		debugLog(parameters);
@@ -790,10 +801,20 @@ function InitalizeGuacamoleClient() {
 				var rank = parseInt(parameters[i+1]);
 				usersData[parameters[i]] = [rank, 0];
 				// instantly update stuff if the user logs in as admin
-				if (rank == 2 && parameters[i] === username)
-				{
-					$("#vote-cancel").show();
+				if (parameters[i] === username && rank >= 2) {
 					$("#admin-btns").show();
+					if (rank == 2 || (rank == 3 && modPerms & 1))
+						$("#restore-btn").show();
+					else
+						$("#restore-btn").hide();
+					if (rank == 2 || (rank == 3 && modPerms & 2))
+						$("#reboot-btn").show();
+					else
+						$("#reboot-btn").hide();
+					if (rank == 2 || (rank == 3 && modPerms & 8))
+						$("#vote-cancel").show();
+					else
+						$("#vote-cancel").hide();
 				}
 			}
 		}
