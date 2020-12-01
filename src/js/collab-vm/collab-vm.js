@@ -464,7 +464,7 @@ function setVoteStats(parameters) {
 		$("#vote-alert").show();
 	}
 
-	if (usersData[username][0] == 2)
+	if (usersData[username][0] == 2 || (usersData[username][0] == 3 && modPerms & 8))
 	{
 		$("#vote-cancel").show();
 	} else {
@@ -783,8 +783,32 @@ function InitalizeGuacamoleClient() {
 	};
 	
 	guac.onadmin = function(parameters) {
-		if (parameters[0] == "0" && parameters[1] == "3")
-			modPerms = parseInt(parameters[2]);
+		if (parameters[0] === "0") {
+			var rank = 0;
+			if (parameters[1] === "1")
+				rank = 2;
+			else if (parameters[1] === "3")
+			{
+				rank = 3;
+				modPerms = parseInt(parameters[2]);
+			}
+			if (rank == 2 || (rank == 3 && modPerms & 3))
+				$("#admin-btns").show();
+			else
+				$("#admin-btns").hide();
+			if (rank == 2 || (rank == 3 && modPerms & 1))
+				$("#restore-btn").show();
+			else
+				$("#restore-btn").hide();
+			if (rank == 2 || (rank == 3 && modPerms & 2))
+				$("#reboot-btn").show();
+			else
+				$("#reboot-btn").hide();
+			if (rank == 2 || (rank == 3 && modPerms & 8))
+				$("#vote-cancel").show();
+			else
+				$("#vote-cancel").hide();
+		}
 	};
 	
 	guac.onadduser = function(parameters) {
@@ -800,22 +824,6 @@ function InitalizeGuacamoleClient() {
 
 				var rank = parseInt(parameters[i+1]);
 				usersData[parameters[i]] = [rank, 0];
-				// instantly update stuff if the user logs in as admin
-				if (parameters[i] === username && rank >= 2) {
-					$("#admin-btns").show();
-					if (rank == 2 || (rank == 3 && modPerms & 1))
-						$("#restore-btn").show();
-					else
-						$("#restore-btn").hide();
-					if (rank == 2 || (rank == 3 && modPerms & 2))
-						$("#reboot-btn").show();
-					else
-						$("#reboot-btn").hide();
-					if (rank == 2 || (rank == 3 && modPerms & 8))
-						$("#vote-cancel").show();
-					else
-						$("#vote-cancel").hide();
-				}
 			}
 		}
 		displayTable();
