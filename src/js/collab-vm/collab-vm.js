@@ -1218,7 +1218,7 @@ $(function() {
 		tunnel.sendMessage("admin", "10", vmName);
 	});	
 	$("#clear-turnqueue-btn").click(function() {
-		tunnel.sendMessage("admin", "17");
+		tunnel.sendMessage("admin", "17", vmName);
 	});
 	
 	$("#home-btn").attr("href", rootDir).click(function(e) {
