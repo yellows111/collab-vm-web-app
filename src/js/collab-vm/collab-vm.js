@@ -132,19 +132,19 @@ function addTableRow(table, user, userData) {
 	var userHTML;
 	if ((usersData[username][0] == 2 || (usersData[username][0] == 3 && modPerms & 20)) && user !== username) {
 		userHTML = "<div class='dropdown-toggle' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>" + user + "<span class='caret'></span></div><ul class='dropdown-menu'>";
+		if (usersData[username][0] == 2 || (usersData[username][0] == 3 && modPerms & 64)) {
+			userHTML += "<li><a href='#' onclick='tunnel.sendMessage(\"admin\",16,\"" + user + "\",2);return false;'>End Turn</a></li>";
+		}
 		if (usersData[username][0] == 2 || (usersData[username][0] == 3 && modPerms & 4)) {
 			userHTML += "<li><a href='#' onclick='tunnel.sendMessage(\"admin\",12,\"" + user + "\");return false;'>Ban</a></li>";
+		}
+		if (usersData[username][0] == 2 || (usersData[username][0] == 3 && modPerms & 32)) {
+			userHTML += "<li><a href='#' onclick='tunnel.sendMessage(\"admin\",15,\"" + user + "\",2);return false;'>Kick</a></li>";
 		}
 		if (usersData[username][0] == 2 || (usersData[username][0] == 3 && modPerms & 16)) {
 			userHTML += "<li><a href='#' onclick='tunnel.sendMessage(\"admin\",14,\"" + user + "\",0);return false;'>Temporary Mute</a></li>";
 			userHTML += "<li><a href='#' onclick='tunnel.sendMessage(\"admin\",14,\"" + user + "\",1);return false;'>Indefinite Mute</a></li>";
 			userHTML += "<li><a href='#' onclick='tunnel.sendMessage(\"admin\",14,\"" + user + "\",2);return false;'>Unmute</a></li>";
-		}
-		if (usersData[username][0] == 2 || (usersData[username][0] == 3 && modPerms & 32)) {
-			userHTML += "<li><a href='#' onclick='tunnel.sendMessage(\"admin\",15,\"" + user + "\",2);return false;'>Kick</a></li>";
-		}
-		if (usersData[username][0] == 2 || (usersData[username][0] == 3 && modPerms & 64)) {
-			userHTML += "<li><a href='#' onclick='tunnel.sendMessage(\"admin\",16,\"" + user + "\",2);return false;'>Remove Turn</a></li>";
 		}
 		userHTML += "</ul>";
 	} else {
