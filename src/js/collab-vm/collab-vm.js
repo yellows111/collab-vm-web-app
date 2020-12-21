@@ -986,8 +986,8 @@ function multicollab(ip) {
 			var link = document.createElement('a');
 			link.className = 'thumbnail';
 			link.href = '#' + thisnode.url;
-			link.innerHTML = (thisnode.image ? '<img src="data:image/png;base64,' + thisnode.image + '"/>' : '') + '<div class="caption"><h4>' + thisnode.name + '</h4></div>';
-			
+			if (thisnode.image === "") {checkforcnewbss = '<img src="http://computernewb.com/screenshots/' + thisnode.url + '.jpg"/><div class="caption"><h4>' + thisnode.name + "</h4></div>"}else{checkforcnewbss = (thisnode.image ? '<img src="data:image/png;base64,' + thisnode.image + '"/>' : "") + '<div class="caption"><h4>' + thisnode.name + "</h4></div>"};
+			link.innerHTML=checkforcnewbss;
 			link.onclick = function(event) {
 					event.preventDefault();
 					tunnel.onstatechange = null;
