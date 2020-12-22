@@ -20,7 +20,7 @@ jobs:
           fetch-depth: 0
       - uses: mstachniuk/ci-skip@master
         with:
-          commit-filter: '[skip ci];[ci skip]'
+          commit-filter: '[skip ci];[ci skip];[no ci]'
           commit-filter-separator: ';'
       - run: echo "::set-output name=result::${CI_SKIP}"
         id: result_step
