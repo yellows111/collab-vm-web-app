@@ -44,5 +44,5 @@ jobs:
     - name: Upload Artifacts
       uses: 'actions/upload-artifact@v2'
       with:
-        name: Webapp built by Node ${{ matrix.node-version }}
+        name: Web App built by Node ${{ matrix.node-version }}
         path: './build/*'
