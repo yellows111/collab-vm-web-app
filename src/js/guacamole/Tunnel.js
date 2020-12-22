@@ -169,7 +169,6 @@ Guacamole.HTTPTunnel = function(tunnelURL) {
      */
     var receive_timeout = null;
 
-
     /**
      * Closes this tunnel, signaling the given status and corresponding
      * message, which will be sent to the onerror handler if the status is
@@ -678,12 +677,10 @@ Guacamole.WebSocketTunnel = function(tunnelURL) {
 
     this.connect = function(data) {
 
-
         // Connect socket
         socket = new WebSocket(data ? tunnelURL + "?" + data : tunnelURL, "guacamole");
 
         socket.onopen = function(event) {
-
 
             tunnel.state = Guacamole.Tunnel.State.OPEN;
             if (tunnel.onstatechange)
