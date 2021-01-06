@@ -130,22 +130,22 @@ function addTableRow(table, user, userData) {
 	data.className = "list-group-item";
 	
 	var userHTML;
-	if ((usersData[username][0] == 2 || (usersData[username][0] == 3 && modPerms & 20)) && user !== username) {
-		userHTML = "<div class='dropdown-toggle' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>" + user + "<span class='caret'></span></div><ul class='dropdown-menu'>";
-		if (usersData[username][0] == 2 || (usersData[username][0] == 3 && modPerms & 64)) {
-			userHTML += "<li><a href='#' onclick='tunnel.sendMessage(\"admin\",16,\"" + user + "\");return false;'>End Turn</a></li>";
-		}
-		if (usersData[username][0] == 2 || (usersData[username][0] == 3 && modPerms & 4)) {
-			userHTML += "<li><a href='#' onclick='tunnel.sendMessage(\"admin\",12,\"" + user + "\");return false;'>Ban</a></li>";
-		}
-		if (usersData[username][0] == 2 || (usersData[username][0] == 3 && modPerms & 32)) {
-			userHTML += "<li><a href='#' onclick='tunnel.sendMessage(\"admin\",15,\"" + user + "\");return false;'>Kick</a></li>";
-		}
-		if (usersData[username][0] == 2 || (usersData[username][0] == 3 && modPerms & 16)) {
-			userHTML += "<li><a href='#' onclick='tunnel.sendMessage(\"admin\",14,\"" + user + "\",0);return false;'>Temporary Mute</a></li>";
-			userHTML += "<li><a href='#' onclick='tunnel.sendMessage(\"admin\",14,\"" + user + "\",1);return false;'>Indefinite Mute</a></li>";
-			userHTML += "<li><a href='#' onclick='tunnel.sendMessage(\"admin\",14,\"" + user + "\",2);return false;'>Unmute</a></li>";
-		}
+	if ((usersData[username][0] == 2 || usersData[username][0] == 3) && user !== username) {
+		// Maybe eventually I should somehow categorize these, this is getting crowded
+		userHTML = `<div class='dropdown-toggle' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>${user}<span class='caret'></span></div><ul class='dropdown-menu'>`;
+		if (modPerms & 64) userHTML += `<li><a href='#' onclick='tunnel.sendMessage("admin",16,"${user}");return false;'>End Turn</a></li>`;
+		if (modPerms & 4) userHTML += `<li><a href='#' onclick='tunnel.sendMessage("admin",12,"${user}");return false;'>Ban</a></li>`;
+		if (modPerms & 32) userHTML += `<li><a href='#' onclick='tunnel.sendMessage("admin",15,"${user}");return false;'>Kick</a></li>`;
+		if (modPerms & 256) {
+			userHTML += `<li><a href='#' onclick='tunnel.sendMessage("admin",18,"${user}");return false;'>Reset Name</a></li>`;
+			userHTML += `<li><a href='#' onclick='tunnel.sendMessage("admin",18,"${user}",prompt("Change name from ${user} to?","${user}"));return false;'>Change Name</a></li>`;
+			// Maybe eventually I should move this to a HTML prompt instead
+		};
+		if (modPerms & 16) {
+			userHTML += `<li><a href='#' onclick='tunnel.sendMessage("admin",14,"${user}",0);return false;'>Temporary Mute</a></li>`;
+			userHTML += `<li><a href='#' onclick='tunnel.sendMessage("admin",14,"${user}",1);return false;'>Indefinite Mute</a></li>`;
+			userHTML += `<li><a href='#' onclick='tunnel.sendMessage("admin",14,"${user}",2);return false;'>Unmute</a></li>`;
+		};
 		userHTML += "</ul>";
 	} else {
 		userHTML = user;
@@ -792,9 +792,10 @@ function InitalizeGuacamoleClient() {
 	guac.onadmin = function(parameters) {
 		if (parameters[0] === "0") {
 			var rank = 0;
-			if (parameters[1] === "1")
+			if (parameters[1] === "1") {
 				rank = 2;
-			else if (parameters[1] === "3")
+				modPerms = 65535;
+			} else if (parameters[1] === "3")
 			{
 				rank = 3;
 				modPerms = parseInt(parameters[2]);
@@ -819,7 +820,13 @@ function InitalizeGuacamoleClient() {
 				$("#clear-turnqueue-btn").show();
 			else
 				$("#clear-turnqueue-btn").hide();
-		}
+		} else if (parameters[0] === "18") {
+			if (parameters[1] === "1") {
+				alert("That username is already taken.");
+			} else if (parameters[1] === "2") {
+				alert("Usernames can contain only numbers, letters, spaces, dashes, underscores, and dots, and it must be between 3 and 20 characters.");
+			};
+		};
 	};
 	
 	guac.onadduser = function(parameters) {
