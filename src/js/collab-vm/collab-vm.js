@@ -477,6 +477,13 @@ function setVoteStats(parameters) {
 	} else {
 		$("#vote-cancel").hide();
 	}
+	
+	if (usersData[username][0] == 2 || (usersData[username][0] == 3 && (modPerms & 8 && modPerms & 1)))
+	{
+		$("#vote-pass").show();
+	} else {
+		$("#vote-pass").hide();
+	}
 }
 
 /**
@@ -589,6 +596,7 @@ function InitalizeGuacamoleClient() {
 			$("#turn-btn").show();
 			$("#end-turn-btn").hide();
 			$("#vote-cancel").hide();
+			$("#vote-pass").hide();
 			$("#admin-btns").hide();
 			if (turnInterval !== null) {
 				clearInterval(turnInterval);
@@ -815,7 +823,11 @@ function InitalizeGuacamoleClient() {
 			if (rank == 2 || (rank == 3 && modPerms & 8))
 				$("#vote-cancel").show();
 			else
-				$("#vote-cancel").hide();			
+				$("#vote-cancel").hide();
+			if (rank == 2 || (rank == 3 && (modPerms & 8 && modPerms & 1)))
+				$("#vote-pass").show();
+			else
+				$("#vote-pass").hide();
 			if (rank == 2 || (rank == 3 && modPerms & 64))
 				$("#clear-turnqueue-btn").show();
 			else
@@ -1121,7 +1133,11 @@ $(function() {
 	});
 
 	$("#vote-cancel").click(function() {
-		tunnel.sendMessage("admin", "13");
+		tunnel.sendMessage("admin", "13", 0);
+	});
+
+	$("#vote-pass").click(function() {
+		tunnel.sendMessage("admin", "13", 1);
 	});
 	
 	$("#vote-dismiss").click(function() {
