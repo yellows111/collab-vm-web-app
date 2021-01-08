@@ -828,10 +828,13 @@ function InitalizeGuacamoleClient() {
 				$("#vote-pass").show();
 			else
 				$("#vote-pass").hide();
-			if (rank == 2 || (rank == 3 && modPerms & 64))
+			if (rank == 2 || (rank == 3 && modPerms & 64)) {
 				$("#clear-turnqueue-btn").show();
-			else
+				$("#end-current-turn-btn").show();
+			} else {
 				$("#clear-turnqueue-btn").hide();
+				$("#end-current-turn-btn").hide();
+			}
 		} else if (parameters[0] === "18") {
 			if (parameters[1] === "1") {
 				alert("That username is already taken.");
@@ -1243,6 +1246,14 @@ $(function() {
 	$("#clear-turnqueue-btn").click(function() {
 		tunnel.sendMessage("admin", "17", vmName);
 	});
+	$("#end-current-turn-btn").click(function() {
+		for (var user in usersData) {
+			if (usersData[user][1] == 1) {
+				tunnel.sendMessage("admin", "16", user);
+				break;
+			};
+		};
+	});	
 	
 	$("#home-btn").attr("href", rootDir).click(function(e) {
 		// Check that the link was clicked with the left mouse button
