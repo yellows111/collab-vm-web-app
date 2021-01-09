@@ -124,7 +124,10 @@ function getRankClass(rank) {
 			return "moderator";
 	}
 }
-
+/**
+ * Define a PIP entity incase supported.
+ */
+var pictureInPictureVideo;
 function addTableRow(table, user, userData) {
 	var data = document.createElement("LI");
 	data.className = "list-group-item";
@@ -567,7 +570,13 @@ function InitalizeGuacamoleClient() {
 		if (!hasTurn && !nsfwWarn)
 			tunnel.sendMessage("turn");
 	});
-	
+	if (document.pictureInPictureEnabled) {
+	  $("#pip-btn").show()
+	  pictureInPictureVideo = document.createElement("video");
+	  pictureInPictureVideo.srcObject = guac.getDisplay().getElement().querySelector("canvas").captureStream();
+	  pictureInPictureVideo.muted = true;
+	}
+	else {$("#pip-btn").hide()}	
 	// Error handler
 	guac.onerror = function(error) {
 		debugLog(error);
@@ -1108,7 +1117,10 @@ $(function() {
 		if(tunnel.state == Guacamole.Tunnel.State.OPEN)
 			tunnel.sendMessage("turn","0");
 	});
-	
+	$("#pip-btn").click(() => {
+      pictureInPictureVideo.play();
+      pictureInPictureVideo.requestPictureInPicture();
+	});
 	$(window).resize(function() {
 		if (osk)
 			osk.resize($("#kbd-container").width());
