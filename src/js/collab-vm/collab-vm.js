@@ -139,7 +139,7 @@ function addTableRow(table, user, userData) {
 		if (modPerms & 64) userHTML += `<li><a href='#' onclick='tunnel.sendMessage("admin",16,"${user}");return false;'>End Turn</a></li>`;
 		if (modPerms & 4) userHTML += `<li><a href='#' onclick='tunnel.sendMessage("admin",12,"${user}");return false;'>Ban</a></li>`;
 		if (modPerms & 32) userHTML += `<li><a href='#' onclick='tunnel.sendMessage("admin",15,"${user}");return false;'>Kick</a></li>`;
-		if (modPerms & 256) {
+		if (modPerms & 128) {
 			userHTML += `<li><a href='#' onclick='tunnel.sendMessage("admin",18,"${user}");return false;'>Reset Name</a></li>`;
 			userHTML += `<li><a href='#' onclick='tunnel.sendMessage("admin",18,"${user}",prompt("Change name from ${user} to?","${user}"));return false;'>Change Name</a></li>`;
 			// Maybe eventually I should move this to a HTML prompt instead
