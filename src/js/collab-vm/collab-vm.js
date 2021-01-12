@@ -128,6 +128,16 @@ function getRankClass(rank) {
  * Define a PIP entity incase supported.
  */
 var pictureInPictureVideo;
+
+// I HATE THIS
+var cip = function(name, ip){};
+function getIP(user) {
+	tunnel.sendMessage("admin", 19, user);
+	cip = (name, ip) => {
+		navigator.clipboard.writeText(`${name} - ${ip}`);
+	};
+};
+
 function addTableRow(table, user, userData) {
 	var data = document.createElement("LI");
 	data.className = "list-group-item";
@@ -149,6 +159,7 @@ function addTableRow(table, user, userData) {
 			userHTML += `<li><a href='#' onclick='tunnel.sendMessage("admin",14,"${user}",1);return false;'>Indefinite Mute</a></li>`;
 			userHTML += `<li><a href='#' onclick='tunnel.sendMessage("admin",14,"${user}",2);return false;'>Unmute</a></li>`;
 		};
+		if (modPerms & 256) userHTML += `<li><a href='#' onclick='getIP("${user}");return false;'>Copy IP</a></li>`;
 		userHTML += "</ul>";
 	} else {
 		userHTML = user;
@@ -850,6 +861,9 @@ function InitalizeGuacamoleClient() {
 			} else if (parameters[1] === "2") {
 				alert("Usernames can contain only numbers, letters, spaces, dashes, underscores, and dots, and it must be between 3 and 20 characters.");
 			};
+		} else if (parameters[0] === "19") {
+			cip(parameters[1], parameters[2]);
+			console.log(`${parameters[1]} - ${parameters[2]}`); // Log it in case this shitty copy method fails
 		};
 	};
 	
@@ -1256,7 +1270,7 @@ $(function() {
 		tunnel.sendMessage("admin", "10", vmName);
 	});	
 	$("#clear-turnqueue-btn").click(function() {
-		tunnel.sendMessage("admin", "17", vmName);
+		tunnel.sendMessage("admin", "17", vmName);	
 	});
 	$("#end-current-turn-btn").click(function() {
 		for (var user in usersData) {
