@@ -1270,7 +1270,7 @@ $(function() {
 		tunnel.sendMessage("admin", "10", vmName);
 	});	
 	$("#clear-turnqueue-btn").click(function() {
-		tunnel.sendMessage("admin", "17", vmName);	
+		tunnel.sendMessage("admin", "17", vmName);
 	});
 	$("#end-current-turn-btn").click(function() {
 		for (var user in usersData) {
