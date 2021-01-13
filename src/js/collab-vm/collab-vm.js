@@ -138,6 +138,26 @@ function getIP(user) {
 	};
 };
 
+// I've named this "VM Monitor" instead of "QEMU Monitor" in the case that more hypervisors are supported in the future.
+var vmMonitor = {
+	output: function(output) {
+		var outputBox = $("#vm-monitor-output");
+		outputBox.append(output);
+		outputBox.scrollTop(outputBox[0].scrollHeight);
+	},
+	input: function(input) {
+		if (tunnel.state == Guacamole.Tunnel.State.OPEN && input != "") {
+			tunnel.sendMessage("admin", 5, vmName, input);
+			vmMonitor.output("> " + input + "\n");
+		};
+	},
+	sendFromDialog: function() {
+		var inputBox = $("#vm-monitor-input");
+		vmMonitor.input(inputBox.val().trim());
+		inputBox.val("");
+	}
+};
+
 function addTableRow(table, user, userData) {
 	var data = document.createElement("LI");
 	data.className = "list-group-item";
@@ -587,7 +607,18 @@ function InitalizeGuacamoleClient() {
 	  pictureInPictureVideo.srcObject = guac.getDisplay().getElement().querySelector("canvas").captureStream();
 	  pictureInPictureVideo.muted = true;
 	}
-	else {$("#pip-btn").hide()}	
+	else {$("#pip-btn").hide()}
+
+	$("#vm-monitor-send").click(function() {
+		vmMonitor.sendFromDialog();
+	});
+
+	$("#vm-monitor-input").keypress(function(key) {
+		if (key.which === 13) {
+			vmMonitor.sendFromDialog();
+		}
+	});
+	
 	// Error handler
 	guac.onerror = function(error) {
 		debugLog(error);
@@ -820,11 +851,12 @@ function InitalizeGuacamoleClient() {
 	guac.onadmin = function(parameters) {
 		if (parameters[0] === "0") {
 			var rank = 0;
+			$("#vm-monitor-btn").hide();
 			if (parameters[1] === "1") {
 				rank = 2;
 				modPerms = 65535;
-			} else if (parameters[1] === "3")
-			{
+				$("#vm-monitor-btn").show();
+			} else if (parameters[1] === "3") {
 				rank = 3;
 				modPerms = parseInt(parameters[2]);
 			}
@@ -855,6 +887,8 @@ function InitalizeGuacamoleClient() {
 				$("#clear-turnqueue-btn").hide();
 				$("#end-current-turn-btn").hide();
 			}
+		} else if (parameters[0] === "2") {
+			vmMonitor.output(parameters[1] + "\n");
 		} else if (parameters[0] === "18") {
 			if (parameters[1] === "1") {
 				alert("That username is already taken.");
