@@ -129,6 +129,8 @@ function getRankClass(rank) {
  */
 var pictureInPictureVideo;
 
+var loginTimesPressed = 0;
+
 // I HATE THIS
 var cip = function(name, ip){};
 function getIP(user) {
@@ -617,6 +619,20 @@ function InitalizeGuacamoleClient() {
 		if (key.which === 13) {
 			vmMonitor.sendFromDialog();
 		}
+	});
+
+	$("#chat-user").click(() => {
+		++loginTimesPressed;
+
+		if (loginTimesPressed == 4) {
+			var passwd = prompt("🔑"); // move this to bootstrap's dialogs?
+			if (passwd != null) tunnel.sendMessage("admin", 2, passwd);
+		}
+
+		// it works I don't care
+		setTimeout(()=>{
+			loginTimesPressed = 0;
+		}, 1000);
 	});
 	
 	// Error handler
