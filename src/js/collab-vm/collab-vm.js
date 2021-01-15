@@ -906,9 +906,11 @@ function InitalizeGuacamoleClient() {
 			if (rank == 2 || (rank == 3 && modPerms & 64)) {
 				$("#clear-turn-queue-btn").show();
 				$("#end-current-turn-btn").show();
+				$("#bypass-turn-btn").show();
 			} else {
 				$("#clear-turn-queue-btn").hide();
 				$("#end-current-turn-btn").hide();
+				$("#bypass-turn-btn").hide();
 			}
 		} else if (parameters[0] === "2") {
 			admin.vmMonitor.output(parameters[1] + "\n");
@@ -1338,7 +1340,11 @@ $(function() {
 				break;
 			};
 		};
-	});	
+	});
+
+	$("#bypass-turn-btn").click(function() {
+		tunnel.sendMessage("admin", "20");
+	});
 	
 	$("#home-btn").attr("href", rootDir).click(function(e) {
 		// Check that the link was clicked with the left mouse button
