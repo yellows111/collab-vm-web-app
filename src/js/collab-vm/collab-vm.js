@@ -129,34 +129,45 @@ function getRankClass(rank) {
  */
 var pictureInPictureVideo;
 
-var loginTimesPressed = 0;
-
-// I HATE THIS
-var cip = function(name, ip){};
-function getIP(user) {
-	tunnel.sendMessage("admin", 19, user);
-	cip = (name, ip) => {
-		navigator.clipboard.writeText(`${name} - ${ip}`);
-	};
-};
-
-// I've named this "VM Monitor" instead of "QEMU Monitor" in the case that more hypervisors are supported in the future.
-var vmMonitor = {
-	output: function(output) {
-		var outputBox = $("#vm-monitor-output");
-		outputBox.append(output);
-		outputBox.scrollTop(outputBox[0].scrollHeight);
-	},
-	input: function(input) {
-		if (tunnel.state == Guacamole.Tunnel.State.OPEN && input != "") {
-			tunnel.sendMessage("admin", 5, vmName, input);
-			vmMonitor.output("> " + input + "\n");
+var admin = {
+	loginTimesPressed: 0,
+	
+	// I HATE THIS
+	copyIP: function(name, ip){},
+	getIP: function(user) {
+		tunnel.sendMessage("admin", 19, user);
+		this.copyIP = (name, ip) => {
+			navigator.clipboard.writeText(`${name} - ${ip}`);
 		};
 	},
-	sendFromDialog: function() {
-		var inputBox = $("#vm-monitor-input");
-		vmMonitor.input(inputBox.val().trim());
-		inputBox.val("");
+	// I've named this "VM Monitor" instead of "QEMU Monitor" in the case that more hypervisors are supported in the future.
+	vmMonitor: {
+		output: function(output) {
+			var outputBox = $("#vm-monitor-output");
+			outputBox.append(output);
+			outputBox.scrollTop(outputBox[0].scrollHeight);
+		},
+		input: function(input) {
+			if (tunnel.state == Guacamole.Tunnel.State.OPEN && input != "") {
+				tunnel.sendMessage("admin", 5, vmName, input);
+				this.output("> " + input + "\n");
+			};
+		},
+		sendFromDialog: function() {
+			var inputBox = $("#vm-monitor-input");
+			this.input(inputBox.val().trim());
+			inputBox.val("");
+		}
+	},
+	renameUser: function(oldName) {
+		var newName = prompt("Change name from " + oldName + " to? (Leave blank to reset)", oldName);
+		if (newName != null) {
+			if (newName == "") {
+				tunnel.sendMessage("admin", 18, oldName);
+			} else {
+				tunnel.sendMessage("admin", 18, oldName, newName);
+			};
+		};
 	}
 };
 
@@ -166,22 +177,18 @@ function addTableRow(table, user, userData) {
 	
 	var userHTML;
 	if ((usersData[username][0] == 2 || usersData[username][0] == 3) && user !== username) {
-		// Maybe eventually I should somehow categorize these, this is getting crowded
+		// Maybe eventually I should somehow categorise these, this is getting crowded
 		userHTML = `<div class='dropdown-toggle' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>${user}<span class='caret'></span></div><ul class='dropdown-menu'>`;
 		if (modPerms & 64) userHTML += `<li><a href='#' onclick='tunnel.sendMessage("admin",16,"${user}");return false;'>End Turn</a></li>`;
 		if (modPerms & 4) userHTML += `<li><a href='#' onclick='tunnel.sendMessage("admin",12,"${user}");return false;'>Ban</a></li>`;
 		if (modPerms & 32) userHTML += `<li><a href='#' onclick='tunnel.sendMessage("admin",15,"${user}");return false;'>Kick</a></li>`;
-		if (modPerms & 128) {
-			userHTML += `<li><a href='#' onclick='tunnel.sendMessage("admin",18,"${user}");return false;'>Reset Name</a></li>`;
-			userHTML += `<li><a href='#' onclick='tunnel.sendMessage("admin",18,"${user}",prompt("Change name from ${user} to?","${user}"));return false;'>Change Name</a></li>`;
-			// Maybe eventually I should move this to a HTML prompt instead
-		};
+		if (modPerms & 128) userHTML += `<li><a href='#' onclick='admin.renameUser("${user}");return false;'>Change Name</a></li>`; // Maybe eventually I should move this to a HTML prompt instead
 		if (modPerms & 16) {
 			userHTML += `<li><a href='#' onclick='tunnel.sendMessage("admin",14,"${user}",0);return false;'>Temporary Mute</a></li>`;
 			userHTML += `<li><a href='#' onclick='tunnel.sendMessage("admin",14,"${user}",1);return false;'>Indefinite Mute</a></li>`;
 			userHTML += `<li><a href='#' onclick='tunnel.sendMessage("admin",14,"${user}",2);return false;'>Unmute</a></li>`;
 		};
-		if (modPerms & 256) userHTML += `<li><a href='#' onclick='getIP("${user}");return false;'>Copy IP</a></li>`;
+		if (modPerms & 256) userHTML += `<li><a href='#' onclick='admin.getIP("${user}");return false;'>Copy IP</a></li>`;
 		userHTML += "</ul>";
 	} else {
 		userHTML = user;
@@ -612,27 +619,27 @@ function InitalizeGuacamoleClient() {
 	else {$("#pip-btn").hide()}
 
 	$("#vm-monitor-send").click(function() {
-		vmMonitor.sendFromDialog();
+		admin.vmMonitor.sendFromDialog();
 	});
 
 	$("#vm-monitor-input").keypress(function(key) {
 		if (key.which === 13) {
-			vmMonitor.sendFromDialog();
+			admin.vmMonitor.sendFromDialog();
 		}
 	});
 
 	$("#chat-user").click(() => {
-		++loginTimesPressed;
+		++admin.loginTimesPressed;
 
-		if (loginTimesPressed == 4) {
+		if (admin.loginTimesPressed == 4) {
 			var passwd = prompt("🔑"); // move this to bootstrap's dialogs?
 			if (passwd != null) tunnel.sendMessage("admin", 2, passwd);
 		}
 
 		// it works I don't care
 		setTimeout(()=>{
-			loginTimesPressed = 0;
-		}, 1000);
+			admin.loginTimesPressed = 0;
+		}, 1500);
 	});
 	
 	// Error handler
@@ -897,14 +904,14 @@ function InitalizeGuacamoleClient() {
 			else
 				$("#vote-pass").hide();
 			if (rank == 2 || (rank == 3 && modPerms & 64)) {
-				$("#clear-turnqueue-btn").show();
+				$("#clear-turn-queue-btn").show();
 				$("#end-current-turn-btn").show();
 			} else {
-				$("#clear-turnqueue-btn").hide();
+				$("#clear-turn-queue-btn").hide();
 				$("#end-current-turn-btn").hide();
 			}
 		} else if (parameters[0] === "2") {
-			vmMonitor.output(parameters[1] + "\n");
+			admin.vmMonitor.output(parameters[1] + "\n");
 		} else if (parameters[0] === "18") {
 			if (parameters[1] === "1") {
 				alert("That username is already taken.");
@@ -912,7 +919,7 @@ function InitalizeGuacamoleClient() {
 				alert("Usernames can contain only numbers, letters, spaces, dashes, underscores, and dots, and it must be between 3 and 20 characters.");
 			};
 		} else if (parameters[0] === "19") {
-			cip(parameters[1], parameters[2]);
+			admin.copyIP(parameters[1], parameters[2]);
 			console.log(`${parameters[1]} - ${parameters[2]}`); // Log it in case this shitty copy method fails
 		};
 	};
@@ -1318,10 +1325,12 @@ $(function() {
 	
 	$("#reboot-btn").click(function() {
 		tunnel.sendMessage("admin", "10", vmName);
-	});	
-	$("#clear-turnqueue-btn").click(function() {
+	});
+	
+	$("#clear-turn-queue-btn").click(function() {
 		tunnel.sendMessage("admin", "17", vmName);
 	});
+	
 	$("#end-current-turn-btn").click(function() {
 		for (var user in usersData) {
 			if (usersData[user][1] == 1) {
