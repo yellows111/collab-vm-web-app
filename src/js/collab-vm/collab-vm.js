@@ -1199,7 +1199,7 @@ $(function() {
 	else {
       pictureInPictureVideo.play();
       pictureInPictureVideo.requestPictureInPicture();
-	});
+	}});
 	$(window).resize(function() {
 		if (osk)
 			osk.resize($("#kbd-container").width());
