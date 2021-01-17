@@ -612,6 +612,7 @@ function InitalizeGuacamoleClient() {
 	});
 	if (document.pictureInPictureEnabled) {
 	  $("#pip-btn").show()
+	}
 	// pip code moved to button due to performance reasons just dont ask ok
 	else {$("#pip-btn").hide()}
 
