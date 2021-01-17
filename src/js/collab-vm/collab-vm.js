@@ -124,6 +124,7 @@ function getRankClass(rank) {
 			return "moderator";
 	}
 }
+
 /**
  * Define a PIP entity incase supported.
  */
@@ -610,11 +611,10 @@ function InitalizeGuacamoleClient() {
 		if (!hasTurn && !nsfwWarn)
 			tunnel.sendMessage("turn");
 	});
-	if (document.pictureInPictureEnabled) {
-	  $("#pip-btn").show()
-	}
+
 	// pip code moved to button due to performance reasons just dont ask ok
-	else {$("#pip-btn").hide()}
+	// and to fix performance issues even more just disable this completely for now
+	// document.pictureInPictureEnabled ? $("#pip-btn").show() : $("#pip-btn").hide();
 
 	$("#vm-monitor-send").click(function() {
 		admin.vmMonitor.sendFromDialog();
@@ -1188,7 +1188,8 @@ $(function() {
 		if(tunnel.state == Guacamole.Tunnel.State.OPEN)
 			tunnel.sendMessage("turn","0");
 	});
-	$("#pip-btn").click(() => {
+	
+	/*$("#pip-btn").click(() => {
 	if (pictureInPictureVideo == undefined) {
 	  pictureInPictureVideo = document.createElement("video");
 	  pictureInPictureVideo.srcObject = guac.getDisplay().getElement().querySelector("canvas").captureStream();
@@ -1199,7 +1200,8 @@ $(function() {
 	else {
       pictureInPictureVideo.play();
       pictureInPictureVideo.requestPictureInPicture();
-	}});
+	}});*/
+	
 	$(window).resize(function() {
 		if (osk)
 			osk.resize($("#kbd-container").width());
