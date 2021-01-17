@@ -612,10 +612,7 @@ function InitalizeGuacamoleClient() {
 	});
 	if (document.pictureInPictureEnabled) {
 	  $("#pip-btn").show()
-	  pictureInPictureVideo = document.createElement("video");
-	  pictureInPictureVideo.srcObject = guac.getDisplay().getElement().querySelector("canvas").captureStream();
-	  pictureInPictureVideo.muted = true;
-	}
+	// pip code moved to button due to performance reasons just dont ask ok
 	else {$("#pip-btn").hide()}
 
 	$("#vm-monitor-send").click(function() {
@@ -1191,6 +1188,14 @@ $(function() {
 			tunnel.sendMessage("turn","0");
 	});
 	$("#pip-btn").click(() => {
+	if (pictureInPictureVideo == undefined) {
+	  pictureInPictureVideo = document.createElement("video");
+	  pictureInPictureVideo.srcObject = guac.getDisplay().getElement().querySelector("canvas").captureStream();
+	  pictureInPictureVideo.muted = true;
+      pictureInPictureVideo.play();
+      pictureInPictureVideo.requestPictureInPicture();
+	}
+	else {
       pictureInPictureVideo.play();
       pictureInPictureVideo.requestPictureInPicture();
 	});
