@@ -72,7 +72,7 @@ var usersData = {};
 /** {dict} */
 var usersList = {};
 /** @type {string} */
-var username = null;
+var username = null; // unused because exporting global vars is dumb for some reason
 window.username = null;
 /**
  * The name of the VM that the user is currently viewing 
@@ -717,7 +717,7 @@ function InitalizeGuacamoleClient() {
 			displayLoading();
 			
 			// Request a username
-			var window.username = getCookie("username");
+			window.username = getCookie("username");
 			if (window.username)
 				tunnel.sendMessage("rename", window.username);
 			else
