@@ -72,7 +72,8 @@ var usersData = {};
 /** {dict} */
 var usersList = {};
 /** @type {string} */
-var window.username = null;
+var username = null;
+window.username = null;
 /**
  * The name of the VM that the user is currently viewing 
  * or trying to view.
