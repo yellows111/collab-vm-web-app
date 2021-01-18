@@ -632,13 +632,9 @@ function InitalizeGuacamoleClient() {
 			tunnel.sendMessage("turn");
 	});
 
-//	if (document.pictureInPictureEnabled) {
-//	  $("#pip-btn").show()
-//	  pictureInPictureVideo = document.createElement("video");
-//	  pictureInPictureVideo.srcObject = guac.getDisplay().getElement().querySelector("canvas").captureStream();
-//	  pictureInPictureVideo.muted = true;
-//	}
-/*	else*/ {$("#pip-btn").hide()}
+	// pip code moved to button due to performance reasons just dont ask ok
+	// and to fix performance issues even more just disable this completely for now
+	// document.pictureInPictureEnabled ? $("#pip-btn").show() : $("#pip-btn").hide();
 
 	$("#vm-monitor-send").click(function() {
 		admin.vmMonitor.sendFromDialog();
@@ -1224,12 +1220,7 @@ $(function() {
 		if(tunnel.state == Guacamole.Tunnel.State.OPEN)
 			tunnel.sendMessage("turn","0");
 	});
-/*
-	$("#pip-btn").click(() => {
-      pictureInPictureVideo.play();
-      pictureInPictureVideo.requestPictureInPicture();
-	});
-*/
+
 	$(window).resize(function() {
 		if (osk)
 			osk.resize($("#kbd-container").width());
