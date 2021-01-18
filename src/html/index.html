@@ -3,6 +3,11 @@
     <head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<meta property="og:title" content="Control Collaborative Virtual Machines!"/>
+		<meta property="og:url" content="http://computernewb.com/collab-vm"/>
+		<meta property="og:description" content="Control a computer (Windows, Linux, MacOS, etc) from your browser, for 18 seconds at a time, with strangers!"/>
+		<meta property="og:image" content="http://computernewb.com/starter.jpg"/>
 		<title>Control Collaborative Virtual Machines!</title>
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
@@ -12,12 +17,7 @@
 		<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 		<!-- inject:js -->
-		<script type="text/javascript">History = { options: { html4Mode: true } }</script>
-		<script type="text/javascript" src="../js/collab-vm/jquery.history.js"></script>
-		<script type="text/javascript" src="guacamole.min.js"></script>
-		<script type="text/javascript" src="../js/collab-vm/common.js"></script>
-		<script type="text/javascript" src="../js/collab-vm/en-us-qwerty.js"></script>
-		<script type="text/javascript" src="../js/collab-vm/collab-vm.js"></script>
+		<script type="text/javascript" src="all.min.js"></script>
 		<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/holder/2.9.1/holder.min.js"></script>-->
 		<!-- endinject -->
 	   	<!-- inject:win-logo-ascii --><!-- endinject -->
@@ -110,7 +110,7 @@
 			<h4 id="warning" style="display: none;">
 				<div id="warn-text" style="display: inline;"><h2>Warning</h2>As anyone can do anything on these PCs, this site may contain NSFW content.<br>
 				<div class="checkbox">
-					<label><input type="checkbox" id="no-warn-chkbox">Don't warn me again</label><br>
+					<label><input type="checkbox" id="no-warn-chkbox">Don't warn me again (I have accepted the <a href="/collab-vm/rules">CollabVM Rules</a>)</input></label><br>
 				</div>
 				<button class="btn btn-default" id="nsfw-cont-btn">Continue</button></div>
 			</h4>
