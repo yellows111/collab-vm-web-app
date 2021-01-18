@@ -60,15 +60,15 @@ table {
 .current-user.list-group-item {
 	font-style: italic;
 }
-.admin.list-group-item {
+.admin.list-group-item, .message-pane > li > div > span.admin {
     font-weight: bold;
     color: red;
 }
-.moderator.list-group-item {
+.moderator.list-group-item, .message-pane > li > div > span.moderator {
     font-weight: bold;
     color: green;
 }
-.dev.list-group-item {
+.dev.list-group-item, .message-pane > li > div > span.dev {
     font-weight: bold;
     color: blue;
 }
