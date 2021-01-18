@@ -152,7 +152,7 @@ var admin = {
 		this.copyIP = (name, ip) => {
 			if (navigator.clipboard.writeText) {
 				navigator.clipboard.writeText(`${name} - ${ip}`);
-			}else{
+			} else {
 				// If the browser doesn't support writing text to the clipboard, send the IP to chat instead.
 				chatMessage("",`${name} - ${ip}`);
 			}
