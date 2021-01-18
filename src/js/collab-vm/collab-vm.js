@@ -1185,7 +1185,7 @@ $(function() {
 	$("#nsfw-cont-btn").click(function() {
 		displayNsfwWarn(false);
 		if ($("#no-warn-chkbox").prop("checked")) {
-			setCookie("no-nsfw-warn", "1", 365);
+			setCookie("no-nsfw-warn-v2", "1", 365);
 		}
 	});
 	
