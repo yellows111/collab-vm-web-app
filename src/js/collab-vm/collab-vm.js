@@ -1464,7 +1464,9 @@ $(function() {
 window.GetAdmin = function() {
 	return admin;
 }
-
+window.multicollab=function(ip){multicollab(ip);}
+window.maxChatMsgLen=maxChatMsgLen
+window.username=getCookie("username")
 // Disconnect on close
 window.onunload = function() {
 	guac.disconnect();
