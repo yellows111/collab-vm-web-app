@@ -29,7 +29,7 @@ export default {
 	 * The main node this webapp is configured to connect to.
 	 * @const
 	 */
-	serverAddress: "computernewb.com:6002",
+	serverAddress: window.location.host,
 
 	/**
 	 * Additional nodes to connect to.
@@ -37,10 +37,5 @@ export default {
 	 * @const
 	 */
 	additionalNodes: [
-		"computernewb.com:6004",
-		"computernewb.com:6005",
-		"computernewb.com:6006",
-		"computernewb.com:6007",
-		"computernewb.com:6008"
 	]
 };
