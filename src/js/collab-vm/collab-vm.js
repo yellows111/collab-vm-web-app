@@ -840,6 +840,8 @@ function InitalizeGuacamoleClient() {
 				alert("That username is already taken.");
 			} else if (parameters[1] === "2") {
 				alert("Usernames can contain only numbers, letters, spaces, dashes, underscores, and dots, and it must be between 3 and 20 characters.");
+			} else if (parameters[1] === "3") {
+				alert("That username has been blacklisted.");
 			}
 		} else if (parameters[0] === "1") {
 			var oldUsername = parameters[1];
