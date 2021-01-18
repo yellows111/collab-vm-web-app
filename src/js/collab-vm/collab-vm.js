@@ -150,12 +150,12 @@ var admin = {
 		tunnel.sendMessage("admin", 19, user);
 		// why is this assigned at runtime?
 		this.copyIP = (name, ip) => {
-		if (navigator.clipboard.writeText !== undefined) {
-			navigator.clipboard.writeText(`${name} - ${ip}`);
-		}
-		else {
-			chatMessage("",`${name} - ${ip}`); // because redundant logs made you mad
-        }
+			if (navigator.clipboard.writeText) {
+				navigator.clipboard.writeText(`${name} - ${ip}`);
+			}else{
+				// If the browser doesn't support writing text to the clipboard, send the IP to chat instead.
+				chatMessage("",`${name} - ${ip}`);
+			}
 		};
 	},
 
