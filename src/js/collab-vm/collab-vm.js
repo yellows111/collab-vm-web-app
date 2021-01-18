@@ -11,12 +11,12 @@ const Guacamole = GetGuacamole();
 /** @const
  * Max number of characters in a chat message.
  */
-var maxChatMsgLen = 100;
+window.maxChatMsgLen = 100;
 
 /** @const
  * Max number of chat messages to store.
  */
-var maxChatMsgHistory = 100;
+window.maxChatMsgHistory = 100;
 
 /**
  * Whether the user has control over the VM or not.
@@ -72,14 +72,15 @@ var usersData = {};
 /** {dict} */
 var usersList = {};
 /** @type {string} */
-var username = null; // unused because exporting global vars is dumb for some reason
 window.username = null;
+
 /**
  * The name of the VM that the user is currently viewing 
  * or trying to view.
  * @type {string}
  */
-var vmName;
+window.vmName = null;
+
 /**
  * Whether the client is connecting to a VM and viewing it.
  * @type {boolean}
@@ -203,7 +204,7 @@ function addTableRow(table, user, userData) {
 	data.className = "list-group-item";
 
 	var userHTML;
-	if ((usersData[window.username][0] == 2 || usersData[window.username][0] == 3) && user !== window.username) {
+	if ((usersData[username][0] == 2 || usersData[username][0] == 3) && user !== username) {
 		// Maybe eventually I should somehow categorise these, this is getting crowded
 		userHTML = `<div class='dropdown-toggle' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>${user}<span class='caret'></span></div><ul class='dropdown-menu'>`;
 		if (modPerms & 64) userHTML += `<li><a href='#' onclick='GetAdmin().adminInstruction(16,"${user}");return false;'>End Turn</a></li>`;
@@ -230,7 +231,7 @@ function addTableRow(table, user, userData) {
 	} else if (userData[1] > 1) {
 		data.className += " waiting-turn";
 	}
-	if (user == window.username)
+	if (user == username)
 		data.className += " current-user";
 	table.appendChild(data);
 }
@@ -541,14 +542,14 @@ function setVoteStats(parameters) {
 		$("#vote-alert").show();
 	}
 
-	if (usersData[window.username][0] == 2 || (usersData[window.username][0] == 3 && modPerms & 8))
+	if (usersData[username][0] == 2 || (usersData[username][0] == 3 && modPerms & 8))
 	{
 		$("#vote-cancel").show();
 	} else {
 		$("#vote-cancel").hide();
 	}
 	
-	if (usersData[window.username][0] == 2 || (usersData[window.username][0] == 3 && (modPerms & 8 && modPerms & 1)))
+	if (usersData[username][0] == 2 || (usersData[username][0] == 3 && (modPerms & 8 && modPerms & 1)))
 	{
 		$("#vote-pass").show();
 	} else {
@@ -718,8 +719,8 @@ function InitalizeGuacamoleClient() {
 			
 			// Request a username
 			window.username = getCookie("username");
-			if (window.username)
-				tunnel.sendMessage("rename", window.username);
+			if (username)
+				tunnel.sendMessage("rename", username);
 			else
 				tunnel.sendMessage("rename");
 			
@@ -758,7 +759,7 @@ function InitalizeGuacamoleClient() {
 		for (var i = 2; i < num; i++) {
 			usersData[parameters[i]][1] = i-1;
 		}
-		if (num > 2 && parameters[2] == window.username) {
+		if (num > 2 && parameters[2] == username) {
 			// The user has control
 			hasTurn = true;
 			$("#turn-btn").hide();
@@ -813,11 +814,11 @@ function InitalizeGuacamoleClient() {
 	guac.onrename = function(parameters) {
 		if (parameters[0] === "0") {
 			// Change this user's username
-			var newUsername = window.username === null;
+			var newUsername = username === null;
 			// Remove old username if it's in the list
 			if (!newUsername) {
 				for (var x = 0; x < users.length; x++) {
-					if (users[x] == window.username) {
+					if (users[x] == username) {
 						users.splice(x, 1);
 						break;
 					}
@@ -825,12 +826,12 @@ function InitalizeGuacamoleClient() {
 			}
 			window.username = parameters[2];
 			$("#username-btn").prop("disabled", false);
-			$("#chat-user").html(window.username);
+			$("#chat-user").html(username);
 			// Add the username to the users array if it's not
 			// already in it
-			if ($.inArray(window.username, users) == -1)
-				users.push(window.username);
-			usersData[window.username] = [0, 0];
+			if ($.inArray(username, users) == -1)
+				users.push(username);
+			usersData[username] = [0, 0];
 			setCookie("username", username, 365);
 
 			// Check status
@@ -869,7 +870,7 @@ function InitalizeGuacamoleClient() {
 				// Request the username that was stored in the cookie
 				// or send an empty username for the server to generate
 				// a new one
-				if (window.username === null) {
+				if (username === null) {
 					tunnel.sendMessage("rename", getCookie("username"));
 				}
 				// Successfully connected to VM
@@ -955,7 +956,7 @@ function InitalizeGuacamoleClient() {
 		common.debugLog(parameters);
 		var num = parseInt(parameters[0])*2 + 1;
 		for (var i = 1; i < num; i += 2) {
-			if(parameters[i] !== window.username || usersData[parameters[i]][0] != parameters[i+1]) {
+			if(parameters[i] !== username || usersData[parameters[i]][0] != parameters[i+1]) {
 				// add user to the user list if they don't exist at all,
 				// otherwise only update the user's rank from the server
 				if(users.find((u)=> u == parameters[i]) == undefined)
@@ -1070,7 +1071,7 @@ function InitalizeGuacamoleClient() {
 	keyboard = new Guacamole.Keyboard(document);
 }
 
-function multicollab(ip) {
+window.multicollab = function(ip) {
 	var connTunnel = new Guacamole.WebSocketTunnel('ws://' + ip + '/');
 	
 	connTunnel.onstatechange = function(code) {
@@ -1266,7 +1267,7 @@ $(function() {
 	});
 	
 	$('#username-modal').on('show.bs.modal', function (event) {
-		$("#username-box").val(window.username);
+		$("#username-box").val(username);
 	});
 
 	$("#username-ok-btn").click(function() {
@@ -1470,9 +1471,7 @@ $(function() {
 window.GetAdmin = function() {
 	return admin;
 }
-window.multicollab=function(ip){multicollab(ip);}
-window.maxChatMsgLen=maxChatMsgLen
-//window.username=getCookie("username") replaced with hackofthemonth:tm:
+
 // Disconnect on close
 window.onunload = function() {
 	guac.disconnect();
