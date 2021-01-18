@@ -262,7 +262,7 @@ function chatMessage(username, message) {
 	var atBottom = chatPanel.offsetHeight + chatPanel.scrollTop >= chatPanel.scrollHeight;
 	var chatElement = $('<li><div></div></li>');
 	if (username)
-		chatElement.children().first().html(message).prepend($(`<span class="username ${usersData[username] ? getRankClass(usersData[username][0]) : ""}"></span>`).text(username), '<span class="spacer">\u25B8</span>');
+		chatElement.children().first().html(message).prepend($('<span class="username"></span>').addClass(usersData[username] ? getRankClass(usersData[username][0]) : "").text(username), '<span class="spacer">\u25B8</span>');
 	else
 		chatElement.children().first().addClass("server-message").html(message);
 	var chatBox = $("#chat-box");
