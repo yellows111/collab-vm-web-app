@@ -475,9 +475,9 @@ function updateVMList(list) {
 	var vmList = $("#vm-list");
 	if (list.length) {
 		for (var i = 0; i < list.length; i += 3) {
-			var e = $('<div class="col-sm-6 col-md-4"><a class="thumbnail" href="#' + common.rootDir + "/" + list[i] + '">' +
+			var e = $('<div class="card"><a class="image" href="#' + common.rootDir + "/" + list[i] + '">' +
 				(list[i+2] ? '<img src="data:image/png;base64,' + list[i+2] + '"/>' : "") +
-				'<div class="caption"><h4>' + list[i+1] + '</h4></div></a></div>');
+				'</a><div class="content"><div class="header">' + list[i+1] + '</div></div></div>');
 			// Add click handler to anchor tag for history
 			e.children().first().click(function(e) {
 				// Check that the link was clicked with the left mouse button
@@ -1113,9 +1113,9 @@ window.multicollab = function(ip) {
 			var thisnode = nodeList[i];
 			
 			var div = document.createElement('div');
-			div.className = 'col-sm-5 col-md-3';
+			div.className = 'card';
 			var link = document.createElement('a');
-			link.className = 'thumbnail';
+			link.className = 'image';
 			link.href = '#' + thisnode.url;
 
 			// this one makes me actually want to fucking set up a jslint thing

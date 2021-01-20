@@ -60,13 +60,17 @@ table {
 .current-user.list-group-item {
 	font-style: italic;
 }
-.admin.list-group-item {
-    font-weight: bold !important;
-    color: red !important;
+.admin.list-group-item, .message-pane > li > div > span.admin {
+    font-weight: bold;
+    color: red;
 }
-.dev.list-group-item {
-    font-weight: bold !important;
-    color: blue !important;
+.moderator.list-group-item, .message-pane > li > div > span.moderator {
+    font-weight: bold;
+    color: green;
+}
+.dev.list-group-item, .message-pane > li > div > span.dev {
+    font-weight: bold;
+    color: blue;
 }
 .waiting-turn.list-group-item {
     background-color: #FFFFB3;
@@ -97,7 +101,6 @@ table {
 }
 
 .message-pane li {
-	cursor: default;
 	border-bottom: 1px solid #ccc;
 	box-shadow: 0 1px 0 0 white;
 }
@@ -129,6 +132,10 @@ table {
 	white-space: -o-pre-wrap; /* Opera */
 	word-wrap: break-word; /* Internet Explorer 5.5+ */
 	display: inline-block;
+}
+
+.message-pane li>div.server-message {
+	font-weight: bold;
 }
 
 .message-pane li>div p {
@@ -471,4 +478,12 @@ table {
 @keyframes sk-circleFadeDelay {
   0%, 39%, 100% { opacity: 0; }
   40% { opacity: 1; } 
+}
+
+#vm-list {
+  display: flex;
+  flex-wrap: wrap;
+}
+.header {
+    text-align: center;
 }
