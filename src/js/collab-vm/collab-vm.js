@@ -316,9 +316,9 @@ function initSound() {
 function setChatSoundOn(on) {
 	chatSoundOn = on;
 	if (chatSoundOn) {
-		$("#chat-sound-btn").children().first().removeClass("glyphicon-volume-off").addClass("glyphicon-volume-up");
+		$("#chat-sound-btn").children().first().removeClass("icon volume off").addClass("icon volume up");
 	} else {
-		$("#chat-sound-btn").children().first().removeClass("glyphicon-volume-up").addClass("glyphicon-volume-off");
+		$("#chat-sound-btn").children().first().removeClass("icon volume up").addClass("icon volume off");
 	}
 }
 
@@ -1223,6 +1223,20 @@ $(function() {
 	$("#turn-btn").click(function() {
 		if(tunnel.state == Guacamole.Tunnel.State.OPEN)
 			tunnel.sendMessage("turn");
+	});	
+	$("#username-btn").click(function() {
+		if(tunnel.state == Guacamole.Tunnel.State.OPEN)
+			$("#username-modal").modal({onApprove:function() {
+			var newUsername = $("#username-box").val().trim();
+			if (newUsername) {
+				$('#username-modal').modal("hide");
+				common.debugLog("New Username: " + newUsername);
+				// TODO: close modal when WebSocket disconnects
+				if (tunnel.state == Guacamole.Tunnel.State.OPEN) {
+					tunnel.sendMessage("rename", newUsername);
+				}
+			}
+			}}).modal("show"); // dont even ask
 	});
 
 	$("#end-turn-btn").click(function() {
@@ -1270,18 +1284,6 @@ $(function() {
 	
 	$('#username-modal').on('show.bs.modal', function (event) {
 		$("#username-box").val(username);
-	});
-
-	$("#username-ok-btn").click(function() {
-		var newUsername = $("#username-box").val().trim();
-		if (newUsername) {
-			$('#username-modal').modal("hide");
-			common.debugLog("New Username: " + newUsername);
-			// TODO: close modal when WebSocket disconnects
-			if (tunnel.state == Guacamole.Tunnel.State.OPEN) {
-				tunnel.sendMessage("rename", newUsername);
-			}
-		}
 	});
 	
 	$("#username-box").keydown(function(e) {
