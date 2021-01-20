@@ -401,6 +401,7 @@ function displayNsfwWarn(show) {
 	if (show === false) {
 		$("#display").removeClass("censor").removeClass("censor-fallback");
 		$("#vm-list img").removeClass("censor").removeClass("censor-fallback");
+		$("#vm-list").removeClass("censor").removeClass("censor-fallback");
 		$("#warning").hide();
 		nsfwWarn = false;
 	} else {
