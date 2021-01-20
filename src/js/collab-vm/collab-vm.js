@@ -406,7 +406,10 @@ function displayNsfwWarn(show) {
 	} else {
 		// First try to use the blur filter to the display
 		var el = $("#display");
+		var vml = $("#vm-list")
 		// Add the filter-blur property to the element
+		el.addClass("censor");
+		vml.addClass("censor");
 		el.addClass("censor");
 		// Check whether the style is computed or ignored
 		blurSupported = el.css("filter") || el.css("-webkit-filter");
