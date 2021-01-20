@@ -483,6 +483,7 @@ table {
 #vm-list {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
 }
 
 .content {
@@ -493,4 +494,23 @@ table {
 	background-color: transparent;
     border: transparent;
 	width: 9%;
+}
+
+.ui.cards>.card {
+    vertical-align: top;
+}
+
+@media only screen and (min-width: 1200px) {
+	#maingrid {
+    padding-left: 7%;
+    padding-right: 7%;
+}
+}@media only screen and (min-width: 1480px) {
+	.ui.cards>.card {
+	width: 400px;
+}
+}@media only screen and (max-width: 700px) {
+	.ui.cards>.card {
+	width: 200px;
+}
 }
