@@ -488,3 +488,9 @@ table {
 .content {
     text-align: center;
 }
+
+.closebutton {
+	background-color: transparent;
+    border: transparent;
+	width: 9%;
+}
