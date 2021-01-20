@@ -1236,7 +1236,7 @@ $(function() {
 					tunnel.sendMessage("rename", newUsername);
 				}
 			}
-			}}).modal("show"); // dont even ask
+			},onVisible: function(){$("#username-box").val(username);}}).modal("show"); // dont even ask
 	});
 
 	$("#end-turn-btn").click(function() {
@@ -1280,10 +1280,6 @@ $(function() {
 	
 	$("#vote-dismiss").click(function() {
 		$("#vote-alert").hide();
-	});
-	
-	$('#username-modal').on('show.bs.modal', function (event) {
-		$("#username-box").val(username);
 	});
 	
 	$("#username-box").keydown(function(e) {
