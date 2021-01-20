@@ -488,8 +488,3 @@ table {
 .content {
     text-align: center;
 }
-
-#vote-alert {
-	width: fit-content;
-	margin: auto;
-}
