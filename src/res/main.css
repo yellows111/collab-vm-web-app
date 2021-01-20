@@ -484,3 +484,7 @@ table {
   display: flex;
   flex-wrap: wrap;
 }
+
+.content {
+    text-align: center;
+}

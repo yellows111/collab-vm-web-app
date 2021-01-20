@@ -477,7 +477,7 @@ function updateVMList(list) {
 		for (var i = 0; i < list.length; i += 3) {
 			var e = $('<div class="card"><a class="image" href="#' + common.rootDir + "/" + list[i] + '">' +
 				(list[i+2] ? '<img src="data:image/png;base64,' + list[i+2] + '"/>' : "") +
-				'</a><div class="content"><div class="header">' + list[i+1] + '</div></div></div>');
+				'</a><div class="content"><a'+' href="#' + common.rootDir + "/" + list[i]+'" class="header">' + list[i+1] + '</a></div></div>');
 			// Add click handler to anchor tag for history
 			e.children().first().click(function(e) {
 				// Check that the link was clicked with the left mouse button
