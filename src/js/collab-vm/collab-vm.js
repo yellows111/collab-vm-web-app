@@ -1118,10 +1118,8 @@ window.multicollab = function(ip) {
 			
 			var div = document.createElement('div');
 			div.className = 'card';
-			var link = document.createElement('a');
-			link.className = 'image';
-			link.href = '#' + thisnode.url;
-
+			var tmphref = '#' + thisnode.url;
+			var listhack = '<a class="image" href="'+tmphref+'">'
 			// this one makes me actually want to fucking set up a jslint thing
 			var checkforcnewbss = "";
 
@@ -1129,13 +1127,13 @@ window.multicollab = function(ip) {
 			// computernewb screenshots. Otherwise, we should use the base64
 			// payload the server sends.
 			if (thisnode.image === "") {
-				checkforcnewbss = '<img src="http://computernewb.com/screenshots/' + thisnode.url + '.jpg"/><div class="caption"><h4>' + thisnode.name + "</h4></div>"
+				checkforcnewbss = listhack+'<img src="http://computernewb.com/screenshots/' + thisnode.url + '.jpg"/>'+'</a><div class="content"><a href="'+tmphref+'" class="header">' + thisnode.name + "</a></div>"
 			} else {
-				checkforcnewbss = (thisnode.image ? '<img src="data:image/png;base64,' + thisnode.image + '"/>' : "") + '<div class="caption"><h4>' + thisnode.name + "</h4></div>"
+				checkforcnewbss = (thisnode.image ? listhack+'<img src="data:image/png;base64,' + thisnode.image + '"/>' : "") + '</a><div class="content"><a href="'+tmphref+'" class="header">' + thisnode.name + "</a></div>"
 			}
 
-			link.innerHTML=checkforcnewbss;
-			link.onclick = function(event) {
+			div.innerHTML=checkforcnewbss;
+			div.onclick = function(event) {
 					event.preventDefault();
 					tunnel.onstatechange = null;
 					guac.disconnect(); // kill existing connection
@@ -1170,7 +1168,7 @@ window.multicollab = function(ip) {
 					InitalizeGuacamoleClient();
 					guac.connect();
 			};
-			div.appendChild(link);
+			//div.appendChild(link);
 			vmlist.appendChild(div);
 			
 			// Manually apply the nsfw blur if we have to
