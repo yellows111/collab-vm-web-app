@@ -8,7 +8,7 @@ export default {
 	DEBUG_NO_NSFW: false,
 	DEBUG_NO_CONNECT: false, // is this used?
 	DEBUG_VM_LIST: false,
-	DEBUG_VM_LIST: false,
+	DEBUG_VM_LIST: false, // Why is this here twice?
 
 	debugLog: function() {
 		if(this.DEBUG)

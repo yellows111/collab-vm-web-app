@@ -1238,7 +1238,10 @@ $(function() {
 			}
 			},onVisible: function(){$("#username-box").val(username);}}).modal("show"); // dont even ask
 	});
-
+	$("#vm-monitor-btn").click(function() {
+		if(tunnel.state == Guacamole.Tunnel.State.OPEN)
+			$("#vm-monitor-modal").modal("show")
+	});
 	$("#end-turn-btn").click(function() {
 		if(tunnel.state == Guacamole.Tunnel.State.OPEN)
 			tunnel.sendMessage("turn","0");
