@@ -87,7 +87,7 @@
 					<h2><small>Click the screen to request a turn and control the computer!</small></h2>
 				</div>
 				<div id="display-outer">
-					<div id="display"></div>
+					<div id="display"></div><br>
 					<div style="display:none;" class="ui compact message" role="alert" id="vote-alert">
 							<div class="header">&nbsp;&nbsp;&nbsp;Do you want to reset the VM?&nbsp;&nbsp;&nbsp;</div>
 							<div class="ui buttons">
@@ -112,20 +112,20 @@
 						</div>
 					</div>-->
 					<div id="btns">
-						<button class="ui button" type="button" id="turn-btn">Take Turn</button>
-						<button style="display:none;" class="ui button" type="button" id="end-turn-btn">End Turn</button>
-						<button class="ui button" type="button" id="osk-btn">Keyboard</button>
+						<button class="ui button" type="button" id="turn-btn"><i class="play icon"></i>Take Turn</button>
+						<button style="display:none;" class="ui button" type="button" id="end-turn-btn"><i class="stop icon"></i>End Turn</button>
+						<button class="ui button" type="button" id="osk-btn"><i class="keyboard icon"></i>Keyboard</button>
 						<button class="ui button" type="button" id="username-btn" disabled>Change Username</button>
-						<button style="display: none;" class="ui button" type="button" id="vote-btn">Vote for Reset</button>
-						<button style="display: none;" class="ui button" type="button" id="pip-btn">Picture-in-Picture</button>
-						<button class="ui button" type="button" id="upload-options-btn">Upload File</button>
+						<button style="display: none;" class="ui button" type="button" id="vote-btn"><i class="poll icon"></i>Vote for Reset</button>
+						<button style="display: none;" class="ui button" type="button" id="pip-btn"><i class="images outline icon"></i>Picture-in-Picture</button>
+						<button class="ui button" type="button" id="upload-options-btn"><i class="cloud upload icon"></i>Upload File</button>
 						<div id="admin-btns" style="display:none;"><br>
-							<button style="display:none;" class="ui button" type="button" id="restore-btn">Restore VM</button>
-							<button style="display:none;" class="ui button" type="button" id="reboot-btn">Reboot VM</button>
-							<button style="display:none;" class="ui button" type="button" id="clear-turn-queue-btn">Clear Turn Queue</button>
-							<button style="display:none;" class="ui button" type="button" id="end-current-turn-btn">End Current Turn</button>
-							<button style="display:none;" class="ui button" type="button" id="bypass-turn-btn">Bypass Turn</button>
-							<button style="display:none;" class="ui button" type="button" id="vm-monitor-btn">VM Monitor</button>
+							<button style="display:none;" class="ui button" type="button" id="restore-btn"><i class="undo alternate icon"></i>Restore VM</button>
+							<button style="display:none;" class="ui button" type="button" id="reboot-btn"><i class="power off icon"></i>Reboot VM</button>
+							<button style="display:none;" class="ui button" type="button" id="clear-turn-queue-btn"><i class="trash alternate icon"></i>Clear Turn Queue</button>
+							<button style="display:none;" class="ui button" type="button" id="end-current-turn-btn"><i class="stop circle outline icon"></i>End Current Turn</button>
+							<button style="display:none;" class="ui button" type="button" id="bypass-turn-btn"><i class="eject icon"></i>Bypass Turn</button>
+							<button style="display:none;" class="ui button" type="button" id="vm-monitor-btn"><i class="desktop icon"></i>VM Monitor</button>
 						</div>
 						<div id="file-upload" class="form-inline" style="display: none;">
 							<input class="form" id="upload-input" type="file">
@@ -143,27 +143,27 @@
 						<br>
 					</div>
 				</div>
-				<div class="row">
-					<div class="ui left vertical menu">
-						<div class="panel panel-default">
-							<ul class="list-group">
-							<li class="list-group-item disabled" style="cursor: default;">Users Online: <span id="users-online"></span></li>
-							<div id="online-users" style="overflow-y: auto;max-height: 204px;">
+				<div class="ui grid" style="margin-left: 0rem;">
+					<div class="four wide column">
+						<h4 class="ui top attached header" style="background: #EEEEEE;">
+							Users Online: <span id="users-online"></span>
+						</h4>
+						<div class="ui attached segment" style="overflow-y:auto;max-height:280px;">
+							<div id="online-users" class="ui celled list">
 							</div>
-							</ul>
 						</div>
 					</div>
-					<div class="col-md-8">
+					<div class="twelve wide column">
 						<div style="position: relative;min-height: 246px; margin-bottom: 10px;">
 							<ul id="chat-panel" class="list-group-item message-pane-wrapper">
 								<div id="chat-box" class="message-pane">
 								</div>
 							</ul>
 						</div>
-						<div class="input-group">
-							<span id="chat-user" class="input-group-addon" style="display: none;"></span>
+						<div class="ui fluid labeled action input">
+							<span id="chat-user" class="ui label" style="display: none;"></span>
 							<input id="chat-input" type="text" class="form-control" aria-describedby="user-label" disabled>
-							<span class="input-group-btn">
+							<span class="ui labeled input">
 								<button id="chat-send-btn" class="ui button" type="button" disabled>Send</button>
 								<button type="button" class="ui button basic" id="chat-sound-btn" title="Toggle chat sound. Not VM sound. The VM does not have sound.">
 									<i class="icon volume up" aria-hidden="true"></i>
