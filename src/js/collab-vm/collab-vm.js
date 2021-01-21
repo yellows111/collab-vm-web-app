@@ -210,7 +210,7 @@ function addTableRow(table, user, userData) {
 		if (modPerms & 64) userHTML += `<div class="item"><a href='#' onclick='GetAdmin().adminInstruction(16,"${user}");return false;'>End Turn</a></div>`;
 		userHTML += `<div class="divider"></div>`;
 		userHTML += `<div class="item"><i class="dropdown icon"></i>Moderation<div class="menu">`;
-		if (!modPerms & 4 && modPerms & 32 && modPerms & 128) userHTML += `<div class="item">(no perms)</div>`
+		if ((modPerms & 4)!=4 && (modPerms & 32)!=32 && (modPerms & 128)!=128) userHTML += `<div class="item">(no perms)</div>`
 		if (modPerms & 4) userHTML += `<div class="item"><a href='#' onclick='GetAdmin().adminInstruction(12,"${user}");return false;'>Ban</a></div>`;
 		if (modPerms & 32) userHTML += `<div class="item"><a href='#' onclick='GetAdmin().adminInstruction(15,"${user}");return false;'>Kick</a></div>`;
 		if (modPerms & 128) userHTML += `<div class="item"><a href='#' onclick='GetAdmin().renameUser("${user}");return false;'>Change Name</a></div>`; // Maybe eventually I should move this to a HTML prompt instead
