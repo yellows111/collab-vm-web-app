@@ -5,7 +5,7 @@ name: "[collab-vm-web-app] - Node.js Gulp"
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, semantic ]
   pull_request:
     branches: [ master ]
 
