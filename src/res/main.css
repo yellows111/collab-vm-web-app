@@ -520,8 +520,14 @@ div#display-outer {
   display: table;
   vertical-align: middle;
   text-align: center;
-  margin-top: 38px;
+  margin-top: 10px;
 }
 div#display {
   display: inline-block;
+}
+div#btns {
+	margin-top: 1em;
+}
+.ui.fluid.labeled.action.input {
+    margin-top: -32px;
 }
