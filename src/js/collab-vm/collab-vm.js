@@ -206,7 +206,7 @@ function addTableRow(table, user, userData) {
 	var userHTML;
 	if ((usersData[username][0] == 2 || usersData[username][0] == 3) && user !== username) {
 		// Maybe eventually I should somehow categorise these, this is getting crowded
-		userHTML = `<div class='dropdown-toggle' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>${user}<span class='caret'></span></div><ul class='dropdown-menu'>`;
+		userHTML = `<div class='dropdown-toggle' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>${user}<span class='caret'><i class="dropdown icon"></i></span></div><ul class='dropdown-menu'>`;
 		if (modPerms & 64) userHTML += `<li><a href='#' onclick='GetAdmin().adminInstruction(16,"${user}");return false;'>End Turn</a></li>`;
 		if (modPerms & 4) userHTML += `<li><a href='#' onclick='GetAdmin().adminInstruction(12,"${user}");return false;'>Ban</a></li>`;
 		if (modPerms & 32) userHTML += `<li><a href='#' onclick='GetAdmin().adminInstruction(15,"${user}");return false;'>Kick</a></li>`;
