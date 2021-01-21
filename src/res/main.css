@@ -544,3 +544,12 @@ div#btns {
     background-color: transparent;
     color: rgba(0,0,0,.6);
 }
+
+.ui.modal>.close {
+    margin-right: 2em;
+    margin-top: 2em;
+}
+.ui.fullscreen.modal>.close {
+    margin-top: -.6em;
+    margin-right: -.6em;
+}
