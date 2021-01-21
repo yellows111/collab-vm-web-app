@@ -548,6 +548,7 @@ div#btns {
 .ui.modal>.close {
     margin-right: 2em;
     margin-top: 2em;
+    color: inherit;
 }
 .ui.fullscreen.modal>.close {
     margin-top: -.8em;
