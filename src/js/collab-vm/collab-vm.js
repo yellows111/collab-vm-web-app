@@ -206,18 +206,19 @@ function addTableRow(table, user, userData) {
 	var userHTML;
 	if ((usersData[username][0] == 2 || usersData[username][0] == 3) && user !== username) {
 		// Maybe eventually I should somehow categorise these, this is getting crowded
-		userHTML = `<div class='dropdown-toggle' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>${user}<span class='caret'><i class="dropdown icon"></i></span></div><ul class='dropdown-menu'>`;
-		if (modPerms & 64) userHTML += `<li><a href='#' onclick='GetAdmin().adminInstruction(16,"${user}");return false;'>End Turn</a></li>`;
-		if (modPerms & 4) userHTML += `<li><a href='#' onclick='GetAdmin().adminInstruction(12,"${user}");return false;'>Ban</a></li>`;
-		if (modPerms & 32) userHTML += `<li><a href='#' onclick='GetAdmin().adminInstruction(15,"${user}");return false;'>Kick</a></li>`;
-		if (modPerms & 128) userHTML += `<li><a href='#' onclick='GetAdmin().renameUser("${user}");return false;'>Change Name</a></li>`; // Maybe eventually I should move this to a HTML prompt instead
+		userHTML = `<div class="ui dropdown">${user}<span class='caret'><i class="dropdown icon"></i></span><div class="menu">`;
+		if (modPerms & 64) userHTML += `<div class="item"><a href='#' onclick='GetAdmin().adminInstruction(16,"${user}");return false;'>End Turn</a></div>`;
+		if (modPerms & 4) userHTML += `<div class="item"><a href='#' onclick='GetAdmin().adminInstruction(12,"${user}");return false;'>Ban</a></div>`;
+		if (modPerms & 32) userHTML += `<div class="item"><a href='#' onclick='GetAdmin().adminInstruction(15,"${user}");return false;'>Kick</a></div>`;
+		if (modPerms & 128) userHTML += `<div class="divider"></div><div class="item"><a href='#' onclick='GetAdmin().renameUser("${user}");return false;'>Change Name</a></div>`; // Maybe eventually I should move this to a HTML prompt instead
 		if (modPerms & 16) {
-			userHTML += `<li><a href='#' onclick='GetAdmin().adminInstruction(14,"${user}",0);return false;'>Temporary Mute</a></li>`;
-			userHTML += `<li><a href='#' onclick='GetAdmin().adminInstruction(14,"${user}",1);return false;'>Indefinite Mute</a></li>`;
-			userHTML += `<li><a href='#' onclick='GetAdmin().adminInstruction(14,"${user}",2);return false;'>Unmute</a></li>`;
+			userHTML += `<div class="divider"></div>`;
+			userHTML += `<div class="item"><a href='#' onclick='GetAdmin().adminInstruction(14,"${user}",0);return false;'>Temporary Mute</a></div>`;
+			userHTML += `<div class="item"><a href='#' onclick='GetAdmin().adminInstruction(14,"${user}",1);return false;'>Indefinite Mute</a></div>`;
+			userHTML += `<div class="item"><a href='#' onclick='GetAdmin().adminInstruction(14,"${user}",2);return false;'>Unmute</a></div>`;
 		};
-		if (modPerms & 256) userHTML += `<li><a href='#' onclick='GetAdmin().getIP("${user}");return false;'>Copy IP</a></li>`;
-		userHTML += "</ul>";
+		if (modPerms & 256) userHTML += `<div class="divider"></div><div class="item"><a href='#' onclick='GetAdmin().getIP("${user}");return false;'>Copy IP</a></div>`;
+		userHTML += "</div></div>";
 	} else {
 		userHTML = user;
 	}
@@ -234,6 +235,7 @@ function addTableRow(table, user, userData) {
 	if (user == username)
 		data.className += " current-user";
 	table.appendChild(data);
+	$('.dropdown').dropdown({direction: "downward"})
 }
 
 function displayTable() {
@@ -1251,7 +1253,6 @@ $(function() {
 		if(tunnel.state == Guacamole.Tunnel.State.OPEN)
 			tunnel.sendMessage("turn","0");
 	});
-
 	$(window).resize(function() {
 		if (osk)
 			osk.resize($("#kbd-container").width());
