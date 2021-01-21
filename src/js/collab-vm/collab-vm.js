@@ -208,14 +208,19 @@ function addTableRow(table, user, userData) {
 		// Maybe eventually I should somehow categorise these, this is getting crowded
 		userHTML = `<div class="ui dropdown">${user}<span class='caret'><i class="dropdown icon"></i></span><div class="menu">`;
 		if (modPerms & 64) userHTML += `<div class="item"><a href='#' onclick='GetAdmin().adminInstruction(16,"${user}");return false;'>End Turn</a></div>`;
+		userHTML += `<div class="divider"></div>`;
+		userHTML += `<div class="item"><i class="dropdown icon"></i>Moderation<div class="menu">`;
 		if (modPerms & 4) userHTML += `<div class="item"><a href='#' onclick='GetAdmin().adminInstruction(12,"${user}");return false;'>Ban</a></div>`;
 		if (modPerms & 32) userHTML += `<div class="item"><a href='#' onclick='GetAdmin().adminInstruction(15,"${user}");return false;'>Kick</a></div>`;
-		if (modPerms & 128) userHTML += `<div class="divider"></div><div class="item"><a href='#' onclick='GetAdmin().renameUser("${user}");return false;'>Change Name</a></div>`; // Maybe eventually I should move this to a HTML prompt instead
+		if (modPerms & 128) userHTML += `<div class="item"><a href='#' onclick='GetAdmin().renameUser("${user}");return false;'>Change Name</a></div>`; // Maybe eventually I should move this to a HTML prompt instead
+		userHTML += `</div></div>`;
 		if (modPerms & 16) {
 			userHTML += `<div class="divider"></div>`;
+			userHTML += `<div class="item"><i class="dropdown icon"></i>Mute<div class="menu">`;
 			userHTML += `<div class="item"><a href='#' onclick='GetAdmin().adminInstruction(14,"${user}",0);return false;'>Temporary Mute</a></div>`;
 			userHTML += `<div class="item"><a href='#' onclick='GetAdmin().adminInstruction(14,"${user}",1);return false;'>Indefinite Mute</a></div>`;
 			userHTML += `<div class="item"><a href='#' onclick='GetAdmin().adminInstruction(14,"${user}",2);return false;'>Unmute</a></div>`;
+			userHTML += `</div></div>`;
 		};
 		if (modPerms & 256) userHTML += `<div class="divider"></div><div class="item"><a href='#' onclick='GetAdmin().getIP("${user}");return false;'>Copy IP</a></div>`;
 		userHTML += "</div></div>";
