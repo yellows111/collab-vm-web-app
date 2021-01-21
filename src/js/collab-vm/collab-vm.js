@@ -1126,7 +1126,7 @@ window.multicollab = function(ip) {
 			// If the image is empty, then this is a VM that uses
 			// computernewb screenshots. Otherwise, we should use the base64
 			// payload the server sends.
-			if (thisnode.ip.split(":")[0]==window.location.host||thisnode.ip.split(":")[0]=="computernewb.com") {
+			if (thisnode.ip.split(":")[0]==window.location.hostname||thisnode.ip.split(":")[0]=="computernewb.com") {
 			isoffical = '<span data-tooltip="Official VM" data-delay="5000" data-position="top left" data-variation="tiny">&nbsp;<i class="star icon"></i></span>'}
 			else { isoffical = "" }
 			if (thisnode.image === "") {
