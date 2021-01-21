@@ -531,3 +531,11 @@ div#btns {
 .ui.fluid.labeled.action.input {
     margin-top: -32px;
 }
+.ui.card, .ui.cards>.card {
+	-webkit-box-shadow: 0 1px 3px 0 #a9a9a9, 0 0 0 1px #a9a9a9;
+	box-shadow: 0 1px 3px 0 #a9a9a9, 0 0 0 1px #a9a9a9;
+}
+.ui.card:hover, .ui.cards>.card:hover {
+	-webkit-box-shadow: 0 2px 6px 0 #d4d4d5, 0 0 0 2px #d4d4d5;
+	box-shadow: 0 2px 6px 0 #d4d4d5, 0 0 0 2px #d4d4d5;
+}

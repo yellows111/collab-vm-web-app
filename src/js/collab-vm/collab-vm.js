@@ -1122,14 +1122,17 @@ window.multicollab = function(ip) {
 			var listhack = '<a class="image" href="'+tmphref+'">'
 			// this one makes me actually want to fucking set up a jslint thing
 			var checkforcnewbss = "";
-
+			var isoffical = "";
 			// If the image is empty, then this is a VM that uses
 			// computernewb screenshots. Otherwise, we should use the base64
 			// payload the server sends.
+			if (thisnode.ip.split(":")[0]==window.location.host||thisnode.ip.split(":")[0]=="computernewb.com") {
+			isoffical = '<span data-tooltip="Official VM" data-delay="5000" data-position="top left" data-variation="tiny">&nbsp;<i class="star icon"></i></span>'}
+			else { isoffical = "" }
 			if (thisnode.image === "") {
-				checkforcnewbss = listhack+'<img src="http://computernewb.com/screenshots/' + thisnode.url + '.jpg"/>'+'</a><div class="content"><a href="'+tmphref+'" class="header">' + thisnode.name + "</a></div>"
+				checkforcnewbss = listhack+'<img src="http://computernewb.com/screenshots/' + thisnode.url + '.jpg"/>'+'</a><div class="content"><a href="'+tmphref+'" class="header">' + thisnode.name + isoffical +"</a></div>"
 			} else {
-				checkforcnewbss = (thisnode.image ? listhack+'<img src="data:image/png;base64,' + thisnode.image + '"/>' : "") + '</a><div class="content"><a href="'+tmphref+'" class="header">' + thisnode.name + "</a></div>"
+				checkforcnewbss = (thisnode.image ? listhack+'<img src="data:image/png;base64,' + thisnode.image + '"/>' : "") + '</a><div class="content"><a href="'+tmphref+'" class="header">' + thisnode.name + isoffical +"</a></div>"
 			}
 
 			div.innerHTML=checkforcnewbss;
