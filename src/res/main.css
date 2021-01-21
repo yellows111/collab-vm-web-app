@@ -539,3 +539,8 @@ div#btns {
 	-webkit-box-shadow: 0 2px 6px 0 #d4d4d5, 0 0 0 2px #d4d4d5;
 	box-shadow: 0 2px 6px 0 #d4d4d5, 0 0 0 2px #d4d4d5;
 }
+
+.ui.secondary.pointing.menu>a.item:hover, .ui.secondary.pointing.menu a.item:hover {
+    background-color: transparent;
+    color: rgba(0,0,0,.6);
+}
