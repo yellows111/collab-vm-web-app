@@ -668,10 +668,16 @@ function InitalizeGuacamoleClient() {
 	$("#chat-user").click(() => {
 		++admin.loginTimesPressed;
 
-		if (admin.loginTimesPressed == 4) {
-			var passwd = prompt("🔑"); // move this to bootstrap's dialogs?
-			if (passwd != null) tunnel.sendMessage("admin", 2, passwd);
-		}
+		$("#admin-auth-modal").modal({onApprove:function() {
+			var passwd = $("#admin-login-box").val();
+			if (passwd) {
+				$('#admin-auth-modal').modal("hide");
+				if (tunnel.state == Guacamole.Tunnel.State.OPEN) {
+					if (passwd != null) tunnel.sendMessage("admin", 2, passwd);
+				}
+			}
+			$("#admin-login-box").val("");
+		}}).modal("show")
 
 		// it works I don't care
 		setTimeout(()=>{
@@ -1302,6 +1308,13 @@ $(function() {
 			// Enter key
 			e.preventDefault();
 			$("#username-ok-btn").trigger("click");
+		}
+	});	
+	$("#admin-login-box").keydown(function(e) {
+		if (e.which === 13) {
+			// Enter key
+			e.preventDefault();
+			$("#admin-login-ok").trigger("click");
 		}
 	});
 	
