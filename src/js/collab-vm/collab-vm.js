@@ -11,12 +11,12 @@ const Guacamole = GetGuacamole();
 /** @const
  * Max number of characters in a chat message.
  */
-var maxChatMsgLen = 100;
+window.maxChatMsgLen = 100;
 
 /** @const
  * Max number of chat messages to store.
  */
-var maxChatMsgHistory = 100;
+window.maxChatMsgHistory = 100;
 
 /**
  * Whether the user has control over the VM or not.
@@ -72,13 +72,15 @@ var usersData = {};
 /** {dict} */
 var usersList = {};
 /** @type {string} */
-var username = null;
+window.username = null;
+
 /**
  * The name of the VM that the user is currently viewing 
  * or trying to view.
  * @type {string}
  */
-var vmName;
+window.vmName = null;
+
 /**
  * Whether the client is connecting to a VM and viewing it.
  * @type {boolean}
@@ -150,7 +152,12 @@ var admin = {
 		tunnel.sendMessage("admin", 19, user);
 		// why is this assigned at runtime?
 		this.copyIP = (name, ip) => {
-			navigator.clipboard.writeText(`${name} - ${ip}`);
+			if (navigator.clipboard.writeText) {
+				navigator.clipboard.writeText(`${name} - ${ip}`);
+			} else {
+				// If the browser doesn't support writing text to the clipboard, send the IP to chat instead.
+				chatMessage("",`${name} - ${ip}`);
+			}
 		};
 	},
 
@@ -262,7 +269,7 @@ function chatMessage(username, message) {
 	var atBottom = chatPanel.offsetHeight + chatPanel.scrollTop >= chatPanel.scrollHeight;
 	var chatElement = $('<li><div></div></li>');
 	if (username)
-		chatElement.children().first().html(message).prepend($('<span class="username"></span>').text(username), '<span class="spacer">\u25B8</span>');
+		chatElement.children().first().html(message).prepend($('<span class="username"></span>').addClass(usersData[username] ? getRankClass(usersData[username][0]) : "").text(username), '<span class="spacer">\u25B8</span>');
 	else
 		chatElement.children().first().addClass("server-message").html(message);
 	var chatBox = $("#chat-box");
@@ -682,7 +689,7 @@ function InitalizeGuacamoleClient() {
 			users = [];
 			usersWaiting = 0;
 			usersData = {};
-			username = null;
+			window.username = null;
 			setFocus(false);
 			hasTurn = false;
 			$("#turn-btn").show();
@@ -711,7 +718,7 @@ function InitalizeGuacamoleClient() {
 			displayLoading();
 			
 			// Request a username
-			var username = getCookie("username");
+			window.username = getCookie("username");
 			if (username)
 				tunnel.sendMessage("rename", username);
 			else
@@ -817,7 +824,7 @@ function InitalizeGuacamoleClient() {
 					}
 				}
 			}
-			username = parameters[2];
+			window.username = parameters[2];
 			$("#username-btn").prop("disabled", false);
 			$("#chat-user").html(username);
 			// Add the username to the users array if it's not
@@ -833,6 +840,8 @@ function InitalizeGuacamoleClient() {
 				alert("That username is already taken.");
 			} else if (parameters[1] === "2") {
 				alert("Usernames can contain only numbers, letters, spaces, dashes, underscores, and dots, and it must be between 3 and 20 characters.");
+			} else if (parameters[1] === "3") {
+				alert("That username has been blacklisted.");
 			}
 		} else if (parameters[0] === "1") {
 			var oldUsername = parameters[1];
@@ -1064,7 +1073,7 @@ function InitalizeGuacamoleClient() {
 	keyboard = new Guacamole.Keyboard(document);
 }
 
-function multicollab(ip) {
+window.multicollab = function(ip) {
 	var connTunnel = new Guacamole.WebSocketTunnel('ws://' + ip + '/');
 	
 	connTunnel.onstatechange = function(code) {
@@ -1464,9 +1473,7 @@ $(function() {
 window.GetAdmin = function() {
 	return admin;
 }
-window.multicollab=function(ip){multicollab(ip);}
-window.maxChatMsgLen=maxChatMsgLen
-window.username=getCookie("username")
+
 // Disconnect on close
 window.onunload = function() {
 	guac.disconnect();
