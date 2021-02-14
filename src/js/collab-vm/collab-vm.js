@@ -589,7 +589,7 @@ function startFileUpload(uploadId) {
 		return;
 	var file = files[0];
 	var xhr = new XMLHttpRequest();
-	xhr.open("POST", "http://" + common.serverAddress + "/upload?" + uploadId, true);
+	xhr.open("POST", location.protocol + "//" + common.serverAddress + "/upload?" + uploadId, true);
 	xhr.responseType = "text";
 	xhr.setRequestHeader("Content-Type", "application/octet-stream");
 	//xhr.onload = function(e) { console.log(xhr.response); };
@@ -1074,7 +1074,7 @@ function InitalizeGuacamoleClient() {
 }
 
 window.multicollab = function(ip) {
-	var connTunnel = new Guacamole.WebSocketTunnel('ws://' + ip + '/');
+	var connTunnel = new Guacamole.WebSocketTunnel((location.protocol == "https:" ? "wss://" : "ws://") + ip + '/');
 	
 	connTunnel.onstatechange = function(code) {
 		if (code == 2) {
@@ -1157,7 +1157,7 @@ window.multicollab = function(ip) {
 							display.removeChild(display.firstChild);
 						
 					// set up the tunnel for InitalizeGuacamoleClient
-					tunnel = new Guacamole.WebSocketTunnel('ws://' + node.ip + '/');
+					tunnel = new Guacamole.WebSocketTunnel((location.protocol == "https:" ? "wss://" : "ws://") + node.ip + '/');
 					vmName = node.url;
 					common.serverAddress = node.ip;
 					
@@ -1448,7 +1448,7 @@ $(function() {
 		return;
 	
 	// Instantiate client, using a websocket tunnel for communications.
-	tunnel = new Guacamole.WebSocketTunnel("ws://" + common.serverAddress + "/");
+	tunnel = new Guacamole.WebSocketTunnel((location.protocol == "https:" ? "wss://" : "ws://") + common.serverAddress + "/");
 	
 	// Disable receive timeouts for debugging
 	if (common.DEBUG_NO_TIMEOUT)
