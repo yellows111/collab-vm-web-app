@@ -152,7 +152,7 @@ var admin = {
 		tunnel.sendMessage("admin", 19, user);
 		// why is this assigned at runtime?
 		this.copyIP = (name, ip) => {
-			if (navigator.clipboard.writeText) {
+			if (navigator.clipboard) {
 				navigator.clipboard.writeText(`${name} - ${ip}`);
 			} else {
 				// If the browser doesn't support writing text to the clipboard, send the IP to chat instead.
@@ -948,8 +948,8 @@ function InitalizeGuacamoleClient() {
 				alert("Usernames can contain only numbers, letters, spaces, dashes, underscores, and dots, and it must be between 3 and 20 characters.");
 			};
 		} else if (parameters[0] === "19") {
-			admin.copyIP(parameters[1], parameters[2]);
 			console.log(`${parameters[1]} - ${parameters[2]}`); // Log it in case this shitty copy method fails
+			admin.copyIP(parameters[1], parameters[2]);
 		};
 	};
 	
