@@ -900,6 +900,7 @@ function InitalizeGuacamoleClient() {
 	
 	guac.onadmin = function(parameters) {
 		if (parameters[0] === "0") {
+			// this sucks please rewrite eventually
 			var rank = 0;
 			$("#vm-monitor-btn").hide();
 			if (parameters[1] === "1") {
@@ -910,7 +911,7 @@ function InitalizeGuacamoleClient() {
 				rank = 3;
 				modPerms = parseInt(parameters[2]);
 			}
-			if (rank == 2 || (rank == 3 && modPerms & 3))
+			if (rank)
 				$("#admin-btns").show();
 			else
 				$("#admin-btns").hide();
@@ -922,6 +923,10 @@ function InitalizeGuacamoleClient() {
 				$("#reboot-btn").show();
 			else
 				$("#reboot-btn").hide();
+			if (rank == 2 || (rank == 3 && (modPerms & 1 || modPerms & 2)))
+				$("#power-dropdown").show();
+			else
+				$("#power-dropdown").hide();
 			if (rank == 2 || (rank == 3 && modPerms & 8))
 				$("#vote-cancel").show();
 			else
