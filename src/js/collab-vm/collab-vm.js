@@ -152,7 +152,7 @@ var admin = {
 		tunnel.sendMessage("admin", 19, user);
 		// why is this assigned at runtime?
 		this.copyIP = (name, ip) => {
-			if (navigator.clipboard.writeText) {
+			if (navigator.clipboard) {
 				navigator.clipboard.writeText(`${name} - ${ip}`);
 			} else {
 				// If the browser doesn't support writing text to the clipboard, send the IP to chat instead.
@@ -601,7 +601,7 @@ function startFileUpload(uploadId) {
 		return;
 	var file = files[0];
 	var xhr = new XMLHttpRequest();
-	xhr.open("POST", "http://" + common.serverAddress + "/upload?" + uploadId, true);
+	xhr.open("POST", location.protocol + "//" + common.serverAddress + "/upload?" + uploadId, true);
 	xhr.responseType = "text";
 	xhr.setRequestHeader("Content-Type", "application/octet-stream");
 	//xhr.onload = function(e) { console.log(xhr.response); };
@@ -918,6 +918,7 @@ function InitalizeGuacamoleClient() {
 	
 	guac.onadmin = function(parameters) {
 		if (parameters[0] === "0") {
+			// this sucks please rewrite eventually
 			var rank = 0;
 			$("#vm-monitor-btn").hide();
 			if (parameters[1] === "1") {
@@ -928,7 +929,7 @@ function InitalizeGuacamoleClient() {
 				rank = 3;
 				modPerms = parseInt(parameters[2]);
 			}
-			if (rank == 2 || (rank == 3 && modPerms & 3))
+			if (rank)
 				$("#admin-btns").show();
 			else
 				$("#admin-btns").hide();
@@ -940,6 +941,10 @@ function InitalizeGuacamoleClient() {
 				$("#reboot-btn").show();
 			else
 				$("#reboot-btn").hide();
+			if (rank == 2 || (rank == 3 && (modPerms & 1 || modPerms & 2)))
+				$("#power-dropdown").show();
+			else
+				$("#power-dropdown").hide();
 			if (rank == 2 || (rank == 3 && modPerms & 8))
 				$("#vote-cancel").show();
 			else
@@ -966,8 +971,8 @@ function InitalizeGuacamoleClient() {
 				alert("Usernames can contain only numbers, letters, spaces, dashes, underscores, and dots, and it must be between 3 and 20 characters.");
 			};
 		} else if (parameters[0] === "19") {
-			admin.copyIP(parameters[1], parameters[2]);
 			console.log(`${parameters[1]} - ${parameters[2]}`); // Log it in case this shitty copy method fails
+			admin.copyIP(parameters[1], parameters[2]);
 		};
 	};
 	
@@ -1092,7 +1097,7 @@ function InitalizeGuacamoleClient() {
 }
 
 window.multicollab = function(ip) {
-	var connTunnel = new Guacamole.WebSocketTunnel('ws://' + ip + '/');
+	var connTunnel = new Guacamole.WebSocketTunnel((location.protocol == "https:" ? "wss://" : "ws://") + ip + '/');
 	
 	connTunnel.onstatechange = function(code) {
 		if (code == 2) {
@@ -1176,7 +1181,7 @@ window.multicollab = function(ip) {
 							display.removeChild(display.firstChild);
 						
 					// set up the tunnel for InitalizeGuacamoleClient
-					tunnel = new Guacamole.WebSocketTunnel('ws://' + node.ip + '/');
+					tunnel = new Guacamole.WebSocketTunnel((location.protocol == "https:" ? "wss://" : "ws://") + node.ip + '/');
 					vmName = node.url;
 					common.serverAddress = node.ip;
 					
@@ -1474,7 +1479,7 @@ $(function() {
 		return;
 	
 	// Instantiate client, using a websocket tunnel for communications.
-	tunnel = new Guacamole.WebSocketTunnel("ws://" + common.serverAddress + "/");
+	tunnel = new Guacamole.WebSocketTunnel((location.protocol == "https:" ? "wss://" : "ws://") + common.serverAddress + "/");
 	
 	// Disable receive timeouts for debugging
 	if (common.DEBUG_NO_TIMEOUT)
