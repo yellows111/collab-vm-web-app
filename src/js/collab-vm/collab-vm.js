@@ -152,7 +152,7 @@ var admin = {
 		tunnel.sendMessage("admin", 19, user);
 		// why is this assigned at runtime?
 		this.copyIP = (name, ip) => {
-			if (navigator.clipboard) {
+			if (navigator.clipboard && navigator.clipboard.writeText) {
 				navigator.clipboard.writeText(`${name} - ${ip}`);
 			} else {
 				// If the browser doesn't support writing text to the clipboard, send the IP to chat instead.
@@ -163,10 +163,11 @@ var admin = {
 
 	// I've named this "VM Monitor" instead of "QEMU Monitor" in the case that more hypervisors are supported in the future.
 	vmMonitor: {
+		outputBox: document.getElementById("vm-monitor-output"),
+		inputBox: document.getElementById("vm-monitor-input"),
 		output: function(output) {
-			var outputBox = $("#vm-monitor-output");
-			outputBox.append(output);
-			outputBox.scrollTop(outputBox[0].scrollHeight);
+			this.outputBox.value += '\n' + output;
+			this.outputBox.scrollTop = this.outputBox.scrollHeight;
 		},
 		input: function(input) {
 			if (tunnel.state == Guacamole.Tunnel.State.OPEN && input != "") {
@@ -175,9 +176,8 @@ var admin = {
 			};
 		},
 		sendFromDialog: function() {
-			var inputBox = $("#vm-monitor-input");
-			this.input(inputBox.val().trim());
-			inputBox.val("");
+			this.input(this.inputBox.value.trim());
+			this.inputBox.value = "";
 		}
 	},
 	renameUser: function(oldName) {
