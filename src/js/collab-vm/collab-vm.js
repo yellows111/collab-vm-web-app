@@ -142,6 +142,10 @@ function getRankClass(rank) {
  */
 //var pictureInPictureVideo;
 
+function cvm_unescape(str) {
+	return str.replace(/&#x27;/g,"'").replace(/&quot;/g,'"').replace(/&#x2F;/g,'/').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&#13;/g,'\r').replace(/&#10;/g,'\n');
+}
+
 var admin = {
 	loginTimesPressed: 0,
 	
@@ -165,7 +169,7 @@ var admin = {
 	vmMonitor: {
 		output: function(output) {
 			var outputBox = document.getElementById("vm-monitor-output");
-			outputBox.value += new DOMParser().parseFromString(output, "text/html").documentElement.textContent;
+			outputBox.value += cvm_unescape(output);
 			outputBox.scrollTop = outputBox.scrollHeight;
 		},
 		input: function(input) {
