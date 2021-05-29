@@ -163,11 +163,10 @@ var admin = {
 
 	// I've named this "VM Monitor" instead of "QEMU Monitor" in the case that more hypervisors are supported in the future.
 	vmMonitor: {
-		outputBox: document.getElementById("vm-monitor-output"),
-		inputBox: document.getElementById("vm-monitor-input"),
 		output: function(output) {
-			this.outputBox.value += '\n' + output;
-			this.outputBox.scrollTop = this.outputBox.scrollHeight;
+			var outputBox = document.getElementById("vm-monitor-output");
+			outputBox.value += new DOMParser().parseFromString(output, "text/html").documentElement.textContent;
+			outputBox.scrollTop = outputBox.scrollHeight;
 		},
 		input: function(input) {
 			if (tunnel.state == Guacamole.Tunnel.State.OPEN && input != "") {
@@ -176,8 +175,9 @@ var admin = {
 			};
 		},
 		sendFromDialog: function() {
-			this.input(this.inputBox.value.trim());
-			this.inputBox.value = "";
+			var inputBox = document.getElementById("vm-monitor-input");
+			this.input(inputBox.value.trim());
+			inputBox.value = "";
 		}
 	},
 	renameUser: function(oldName) {
