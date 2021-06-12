@@ -142,6 +142,10 @@ function getRankClass(rank) {
  */
 //var pictureInPictureVideo;
 
+function cvm_unescape(str) {
+	return str.replace(/&#x27;/g,"'").replace(/&quot;/g,'"').replace(/&#x2F;/g,'/').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&#13;/g,'\r').replace(/&#10;/g,'\n');
+}
+
 var admin = {
 	loginTimesPressed: 0,
 	
@@ -152,7 +156,7 @@ var admin = {
 		tunnel.sendMessage("admin", 19, user);
 		// why is this assigned at runtime?
 		this.copyIP = (name, ip) => {
-			if (navigator.clipboard) {
+			if (navigator.clipboard && navigator.clipboard.writeText) {
 				navigator.clipboard.writeText(`${name} - ${ip}`);
 			} else {
 				// If the browser doesn't support writing text to the clipboard, send the IP to chat instead.
@@ -164,9 +168,9 @@ var admin = {
 	// I've named this "VM Monitor" instead of "QEMU Monitor" in the case that more hypervisors are supported in the future.
 	vmMonitor: {
 		output: function(output) {
-			var outputBox = $("#vm-monitor-output");
-			outputBox.append(output);
-			outputBox.scrollTop(outputBox[0].scrollHeight);
+			var outputBox = document.getElementById("vm-monitor-output");
+			outputBox.value += cvm_unescape(output);
+			outputBox.scrollTop = outputBox.scrollHeight;
 		},
 		input: function(input) {
 			if (tunnel.state == Guacamole.Tunnel.State.OPEN && input != "") {
@@ -175,9 +179,9 @@ var admin = {
 			};
 		},
 		sendFromDialog: function() {
-			var inputBox = $("#vm-monitor-input");
-			this.input(inputBox.val().trim());
-			inputBox.val("");
+			var inputBox = document.getElementById("vm-monitor-input");
+			this.input(inputBox.value.trim());
+			inputBox.value = "";
 		}
 	},
 	renameUser: function(oldName) {
