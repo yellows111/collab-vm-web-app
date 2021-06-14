@@ -479,7 +479,7 @@ function updateVMList(list) {
 	var vmList = $("#vm-list");
 	if (list.length) {
 		for (var i = 0; i < list.length; i += 4) {
-			var e = $('<div class="col-sm-6 col-md-4" cvm-requirespassword="'+list[i+3]+'"'+'><a class="thumbnail" href="#' + common.rootDir + "/" + list[i] + '">' +
+			var e = $('<div class="col-sm-5 col-md-3" cvm-requirespassword="'+list[i+3]+'"'+'><a class="thumbnail" href="#' + common.rootDir + "/" + list[i] + '">' +
 				(list[i+2] ? '<img src="data:image/png;base64,' + list[i+2] + '"/>' : "") +
 				'<div class="caption"><h4>' + list[i+1] + '</h4></div></a></div>');
 			// Add click handler to anchor tag for history
