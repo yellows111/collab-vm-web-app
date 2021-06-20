@@ -484,14 +484,14 @@ function displayVMView(show) {
 
 /**
  * Displays a list of VMs along with their thumbnails and names.
- * @param {Array<string>} list An array consisting of 3 values for each VM:
- * the short name, the display name, and the base64-encoded thumbnail.
+ * @param {Array<string>} list An array consisting of 4 values for each VM:
+ * the short name, the display name, the base64-encoded thumbnail, and if a password is needed or not.
  */
 function updateVMList(list) {
 	var vmList = $("#vm-list");
 	if (list.length) {
-		for (var i = 0; i < list.length; i += 3) {
-			var e = $('<div class="card"><a class="image" href="#' + common.rootDir + "/" + list[i] + '">' +
+		for (var i = 0; i < list.length; i += 4) {
+			var e = $('<div class="card" cvm-requirespassword="'+list[i+3]+'"'+'><a class="image" href="#' + common.rootDir + "/" + list[i] + '">' +
 				(list[i+2] ? '<img src="data:image/png;base64,' + list[i+2] + '"/>' : "") +
 				'</a><div class="content"><a'+' href="#' + common.rootDir + "/" + list[i]+'" class="header">' + list[i+1] + '</a></div></div>');
 			// Add click handler to anchor tag for history
@@ -502,7 +502,20 @@ function updateVMList(list) {
 					var name =  this.getAttribute("href").substr(this.getAttribute("href").lastIndexOf('/')+1);
 					common.debugLog("connect " + name);
 					vmName = name;
-					tunnel.sendMessage("connect", vmName);
+					if(this.parentElement.getAttribute("cvm-requirespassword")=="1") { // the =="1" here is very important, dont remove it
+					$("#password-modal").modal({onApprove:function() {
+						var password = $("#password-box").val().trim();
+						if (password) {
+							$('#password-modal').modal("hide");
+							common.debugLog("VM Password: " + password);
+							// TODO: close modal when WebSocket disconnects
+							tunnel.sendMessage("connect", vmName, password);
+						}
+					}
+	
+					}else{
+						tunnel.sendMessage("connect", vmName);
+					}
 				}
 			});
 			// If there is an image and the NSFW warning is visible, it should be censored
@@ -917,6 +930,10 @@ function InitalizeGuacamoleClient() {
 				// Redirect to VM list
 				History.pushState(null, null, common.rootDir);
 				break;
+			case 3: {
+				alert("Invalid password specified.")
+				break;
+			}
 		}
 	};
 	
@@ -1143,6 +1160,14 @@ window.multicollab = function(ip) {
 			div.className = 'card';
 			var tmphref = '#' + thisnode.url;
 			var listhack = '<a class="image" href="'+tmphref+'">'
+			
+			if(typeof requiresPassword !== 'undefined') {
+				div.setAttribute("cvm-requirespassword", requiresPassword);
+			}else{
+				// gotta love backwards compatibility
+				div.setAttribute("cvm-requirespassword", 0);
+			}
+
 			// this one makes me actually want to fucking set up a jslint thing
 			var checkforcnewbss = "";
 			var isoffical = "";
@@ -1311,12 +1336,19 @@ $(function() {
 	$("#vote-dismiss").click(function() {
 		$("#vote-alert").hide();
 	});
-	
+
 	$("#username-box").keydown(function(e) {
 		if (e.which === 13) {
 			// Enter key
 			e.preventDefault();
 			$("#username-ok-btn").trigger("click");
+		}
+	});		
+	$("#password-box").keydown(function(e) {
+		if (e.which === 13) {
+			// Enter key
+			e.preventDefault();
+			$("#password-ok-btn").trigger("click");
 		}
 	});	
 	$("#admin-login-box").keydown(function(e) {
