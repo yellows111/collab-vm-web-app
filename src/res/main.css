@@ -554,3 +554,7 @@ div#btns {
     margin-top: -.8em;
     margin-right: -.6em;
 }
+.ui.card>.content .key.icon:hover, .ui.cards>.card>.content .key.icon:hover {
+    opacity: 1;
+    color: #ffb70a;
+}

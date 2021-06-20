@@ -511,7 +511,7 @@ function updateVMList(list) {
 								// TODO: close modal when WebSocket disconnects
 								tunnel.sendMessage("connect", vmName, password);
 							}
-						}});
+						}}).modal("show");
 					}else{
 						tunnel.sendMessage("connect", vmName);
 					}
@@ -1136,7 +1136,15 @@ window.multicollab = function(ip) {
 		connTunnel.onstatechange = null;
 		listGuac.disconnect();
 		
-		for (var i = 0; i < e.length; i += 3) {
+		switch (e[3]) { 
+			case 0:
+			case 1:
+			{var scale=4;break;}
+			
+			default: {var scale=3;break;}
+		}
+			
+		for (var i = 0; i < e.length; i += scale) {
 				nodeList.push({
 					ip: ip,
 					url: e[i],
