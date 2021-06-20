@@ -1109,8 +1109,14 @@ window.multicollab = function(ip) {
 	listGuac.onlist = function(e) {
 		connTunnel.onstatechange = null;
 		listGuac.disconnect();
-		
-		for (var i = 0; i < e.length; i += 4) {
+		switch (e[3]) { 
+				case 0:
+				case 1:
+				{var scale=4;break;}
+				
+				default: {var scale=3;break;}
+				}
+		for (var i = 0; i < e.length; i += scale) {
 			nodeList.push({
 				ip: ip,
 				url: e[i],
