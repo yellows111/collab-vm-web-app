@@ -503,16 +503,15 @@ function updateVMList(list) {
 					common.debugLog("connect " + name);
 					vmName = name;
 					if(this.parentElement.getAttribute("cvm-requirespassword")=="1") { // the =="1" here is very important, dont remove it
-					$("#password-modal").modal({onApprove:function() {
-						var password = $("#password-box").val().trim();
-						if (password) {
-							$('#password-modal').modal("hide");
-							common.debugLog("VM Password: " + password);
-							// TODO: close modal when WebSocket disconnects
-							tunnel.sendMessage("connect", vmName, password);
-						}
-					}
-	
+						$("#password-modal").modal({onApprove:function() {
+							var password = $("#password-box").val().trim();
+							if (password) {
+								$('#password-modal').modal("hide");
+								common.debugLog("VM Password: " + password);
+								// TODO: close modal when WebSocket disconnects
+								tunnel.sendMessage("connect", vmName, password);
+							}
+						}});
 					}else{
 						tunnel.sendMessage("connect", vmName);
 					}
