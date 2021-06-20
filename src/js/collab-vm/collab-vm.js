@@ -1110,14 +1110,15 @@ window.multicollab = function(ip) {
 		connTunnel.onstatechange = null;
 		listGuac.disconnect();
 		
-		for (var i = 0; i < e.length; i += 3) {
-				nodeList.push({
-					ip: ip,
-					url: e[i],
-					name: e[i + 1],
-					image: e[i + 2]
-				});
-		}
+		for (var i = 0; i < e.length; i += 4) {
+			nodeList.push({
+				ip: ip,
+				url: e[i],
+				name: e[i + 1],
+				image: e[i + 2],
+				requiresPassword: e[i + 3]
+			});
+	}
 		
 		nodeList.sort(function(a, b) {
 			return a.url > b.url ? 1 : -1;
