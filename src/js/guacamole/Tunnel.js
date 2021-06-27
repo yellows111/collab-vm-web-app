@@ -99,7 +99,7 @@ Guacamole.Tunnel = function() {
      *                           if any.
      */
     this.oninstruction = null;
-
+	
 };
 
 /**
@@ -680,6 +680,8 @@ Guacamole.WebSocketTunnel = function(tunnelURL) {
         // Connect socket
         socket = new WebSocket(data ? tunnelURL + "?" + data : tunnelURL, "guacamole");
 
+        socket.binaryType = "arraybuffer";
+
         socket.onopen = function(event) {
 
             tunnel.state = Guacamole.Tunnel.State.OPEN;
@@ -696,63 +698,117 @@ Guacamole.WebSocketTunnel = function(tunnelURL) {
             close_tunnel(new Guacamole.Status(Guacamole.Status.Code.SERVER_ERROR, event.data));
         };
 
+        const textDecoder = new TextDecoder();
         socket.onmessage = function(event) {
 
             var message = event.data;
-            var startIndex = 0;
-            var elementEnd;
+            if (message instanceof ArrayBuffer) { // message is binary
+                var buffer = new Uint8Array(message);
+                var elements = [];
 
-            var elements = [];
+                do {
 
-            do {
+                    // Search for end of length
+                    var lengthEnd = buffer.indexOf(46, startIndex); // 46 = '.'
+                    if (lengthEnd !== -1) {
 
-                // Search for end of length
-                var lengthEnd = message.indexOf(".", startIndex);
-                if (lengthEnd !== -1) {
+                        // Parse length
+                        var length = parseInt(buffer.subarray(elementEnd+1, lengthEnd).map(x => x - 48).join('')); // 48 = '0'
 
-                    // Parse length
-                    var length = parseInt(message.substring(elementEnd+1, lengthEnd));
+                        // Calculate start of element
+                        startIndex = lengthEnd + 1;
 
-                    // Calculate start of element
-                    startIndex = lengthEnd + 1;
+                        // Calculate location of element terminator
+                        elementEnd = startIndex + length;
 
-                    // Calculate location of element terminator
-                    elementEnd = startIndex + length;
-
-                }
+                    }
                 
-                // If no period, incomplete instruction.
-                else
-                    close_tunnel(new Guacamole.Status(Guacamole.Status.Code.SERVER_ERROR, "Incomplete instruction."));
+                    // If no period, incomplete instruction.
+                    else
+                        close_tunnel(new Guacamole.Status(Guacamole.Status.Code.SERVER_ERROR, "Incomplete instruction."));
 
-                // We now have enough data for the element. Parse.
-                var element = message.substring(startIndex, elementEnd);
-                var terminator = message.substring(elementEnd, elementEnd+1);
+                    // We now have enough data for the element. Parse.
+                    var element = buffer.subarray(startIndex, elementEnd);
+                    var terminator = buffer[elementEnd];
 
-                // Add element to array
-                elements.push(element);
+                    // Add element to array
+                    elements.push(element);
 
-                // If last element, handle instruction
-                if (terminator === ";") {
+                    // If last element, handle instruction
+                    if (terminator === 59) { // 59 = ';'
 
-                    // Get opcode
-                    var opcode = elements.shift();
+                        // Get opcode
+                        var opcode = textDecoder.decode(elements.shift());
 
-                    // Call instruction handler.
-                    if (tunnel.oninstruction)
-                        tunnel.oninstruction(opcode, elements);
+                        // Call instruction handler.
+                        if (tunnel.oninstruction)
+                            tunnel.oninstruction(opcode, elements);
 
-                    // Clear elements
-                    elements.length = 0;
+                        // Clear elements
+                        elements.length = 0;
 
-                }
+                    }
 
-                // Start searching for length at character after
-                // element terminator
-                startIndex = elementEnd + 1;
+                    // Start searching for length at character after
+                    // element terminator
+                    startIndex = elementEnd + 1;
 
-            } while (startIndex < message.length);
+                } while (startIndex < buffer.length);
+            } else { // text
+                var startIndex = 0;
+                var elementEnd;
 
+                var elements = [];
+
+                do {
+
+                    // Search for end of length
+                    var lengthEnd = message.indexOf(".", startIndex);
+                    if (lengthEnd !== -1) {
+
+                        // Parse length
+                        var length = parseInt(message.substring(elementEnd+1, lengthEnd));
+
+                        // Calculate start of element
+                        startIndex = lengthEnd + 1;
+
+                        // Calculate location of element terminator
+                        elementEnd = startIndex + length;
+
+                    }
+
+                    // If no period, incomplete instruction.
+                    else
+                        close_tunnel(new Guacamole.Status(Guacamole.Status.Code.SERVER_ERROR, "Incomplete instruction."));
+
+                    // We now have enough data for the element. Parse.
+                    var element = message.substring(startIndex, elementEnd);
+                    var terminator = message.substring(elementEnd, elementEnd+1);
+
+                    // Add element to array
+                    elements.push(element);
+
+                    // If last element, handle instruction
+                    if (terminator === ";") {
+
+                        // Get opcode
+                        var opcode = elements.shift();
+
+                        // Call instruction handler.
+                        if (tunnel.oninstruction)
+                            tunnel.oninstruction(opcode, elements);
+
+                        // Clear elements
+                        elements.length = 0;
+
+                    }
+
+                    // Start searching for length at character after
+                    // element terminator
+                    startIndex = elementEnd + 1;
+
+                } while (startIndex < message.length);
+            } // end if
         };
 
     };

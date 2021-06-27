@@ -33,6 +33,7 @@ var Guacamole = Guacamole || {};
  */
 Guacamole.Client = function(tunnel) {
 
+    const textDecoder = new TextDecoder();
     var guac_client = this;
 
     var STATE_IDLE          = 0;
@@ -449,6 +450,10 @@ Guacamole.Client = function(tunnel) {
 	 * Fired in response to an action instruction.
 	 */
 	this.onaction = null;
+    /*
+     * Fired in response to a version instruction.
+     */
+    this.onversion = null;
 	
     /**
      * Returns the layer with the given index, creating it if necessary.
@@ -567,6 +572,10 @@ Guacamole.Client = function(tunnel) {
 			if (guac_client.onaction)
                 guac_client.onaction(parameters);
 		},
+        "version": function(parameters) {
+            if (guac_client.onversion)
+                guac_client.onversion(parameters);
+        },
 		"file": function(parameters) {
 			if (guac_client.onfile)
                 guac_client.onfile(parameters);
@@ -931,11 +940,22 @@ Guacamole.Client = function(tunnel) {
 
         "png": function(parameters) {
 
-            var channelMask = parseInt(parameters[0]);
-            var layer = getLayer(parseInt(parameters[1]));
-            var x = parseInt(parameters[2]);
-            var y = parseInt(parameters[3]);
+            var channelMask = parameters[0];
+            var layer = parameters[1];
+            var x = parameters[2];
+            var y = parameters[3];
             var data = parameters[4];
+
+            if (channelMask instanceof Uint8Array) channelMask = textDecoder.decode(channelMask);
+            if (layer instanceof Uint8Array) layer = textDecoder.decode(layer);
+            if (x instanceof Uint8Array) x = textDecoder.decode(x);
+            if (y instanceof Uint8Array) y = textDecoder.decode(y);
+            if (data instanceof Uint8Array) data = Guacamole.BytesToBase64(data);
+
+            channelMask = parseInt(channelMask);
+            layer = getLayer(parseInt(layer));
+            x = parseInt(x);
+            y = parseInt(y);
 
             display.setChannelMask(layer, channelMask);
             display.draw(layer, x, y, "data:image/png;base64," + data);

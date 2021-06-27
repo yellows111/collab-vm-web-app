@@ -2,11 +2,27 @@ import common from "./common";
 import { en_us_qwerty_keyboard } from "./en-us-qwerty";
 
 import { History } from "./jquery.history.js";
+import { BytesToBase64 } from "./base64.js";
 
 // I'm sorry,
 // If you want to bitch at anyone, bitch at Glyptodon
 import { GetGuacamole } from "../../../tmp/guacamole.module.js";
 const Guacamole = GetGuacamole();
+Guacamole.BytesToBase64 = BytesToBase64; // can't import within Client.js so have to do this shit
+
+/** @const
+ * Client version.
+ */
+const ClientVersion = 0b111; // refer to collab-vm-server,CollabVM.cpp,CollabVMServer::OnVersionInstruction for bit meaning
+/**
+ * Server version.
+ */
+var serverVersion;
+var serverVersionList; // because if you click on a vm while multicollab is running it will Explode
+const server_password_support = (ver) => (ver & (1 << 1)) != 0;
+const server_binarymsg_support = (ver) => (ver & (1 << 2)) != 0;
+const textDecoder = new TextDecoder();
+var nopInterval = -1;
 
 /** @const
  * Max number of characters in a chat message.
@@ -478,10 +494,24 @@ function displayVMView(show) {
 function updateVMList(list) {
 	var vmList = $("#vm-list");
 	if (list.length) {
-		for (var i = 0; i < list.length; i += 4) {
-			var e = $('<div class="col-sm-5 col-md-3" cvm-requirespassword="'+list[i+3]+'"'+'><a class="thumbnail" href="#' + common.rootDir + "/" + list[i] + '">' +
-				(list[i+2] ? '<img src="data:image/png;base64,' + list[i+2] + '"/>' : "") +
-				'<div class="caption"><h4>' + list[i+1] + '</h4></div></a></div>');
+		const increment = server_password_support(serverVersion) ? 4 : 3;
+		console.log("serverVersion:"+serverVersion+",serverVersionList:"+serverVersionList+",increment:"+increment+",list.length:"+list.length);//DEBUG
+		for (var i = 0; i < list.length; i += increment) {
+			var url = list[i],
+				vmname = list[i + 1],
+				image = list[i + 2],
+				reqpasswd = 0;
+			if (url instanceof Uint8Array) url = textDecoder.decode(url);
+			if (vmname instanceof Uint8Array) vmname = textDecoder.decode(vmname);
+			if (image instanceof Uint8Array) image = BytesToBase64(image);
+			if (server_password_support(serverVersion)) {
+				reqpasswd = list[i + 3];
+				if (reqpasswd instanceof Uint8Array)
+					reqpasswd = textDecoder.decode(reqpasswd);
+			}
+			var e = $('<div class="col-sm-5 col-md-3" cvm-requirespassword="'+reqpasswd+'"'+'><a class="thumbnail" href="#' + common.rootDir + "/" + url + '">' +
+				(list[i+2] ? '<img src="data:image/png;base64,' + image + '"/>' : "") +
+				'<div class="caption"><h4>' + vmname + '</h4></div></a></div>');
 			// Add click handler to anchor tag for history
 			e.children().first().click(function(e) {
 				// Check that the link was clicked with the left mouse button
@@ -682,6 +712,7 @@ function InitalizeGuacamoleClient() {
 	
 	tunnel.onstatechange = function(state) {
 		if (state == Guacamole.Tunnel.State.CLOSED) {
+			clearInterval(nopInterval);
 			displayLoading();
 			displayVMList(false);
 			$("#username-btn").prop("disabled", true);
@@ -722,6 +753,9 @@ function InitalizeGuacamoleClient() {
 			// Attempt to reconnect in 10 seconds
 			setTimeout(function (){tunnel.state = Guacamole.Tunnel.State.CONNECTING; guac.connect();}, 10000);
 		} else if (state == Guacamole.Tunnel.State.OPEN) {
+			serverVersion = 0;
+			tunnel.sendMessage("version", ClientVersion);
+
 			hasVoted = false;
 			displayLoading();
 			
@@ -748,6 +782,11 @@ function InitalizeGuacamoleClient() {
 		}
 	};
 	
+	// Server version handler
+	guac.onversion = function(parameters) {
+		serverVersion = parseInt(parameters[0]);
+	};
+
 	// VM List handler
 	guac.onlist = function(parameters) {
 		updateVMList(parameters);
@@ -867,7 +906,17 @@ function InitalizeGuacamoleClient() {
 	};
 	
 	guac.onconnect = function(parameters) {
-		switch (parseInt(parameters[0])) {
+		var type = parseInt(parameters[0]);
+		if (nopInterval) {
+			clearInterval(nopInterval);
+		}
+		if (type === 1) { // if we are connected
+			// Send nop every 5 seconds regardless of server, in case we get overwhelmed by pngs
+			nopInterval = setInterval(() => { tunnel.sendMessage("nop"); }, 5000);
+		} else {
+			nopInterval = -1;
+		}
+		switch (type) {
 			case 0: // Failed to connect
 				alert("Failed to connect to VM.")
 				break;
@@ -1099,32 +1148,46 @@ window.multicollab = function(ip) {
 				listGuac.connect()
 			}, 1000)
 		} else if (code == 1) {
+			serverVersionList = 0;
+			connTunnel.sendMessage("version", ClientVersion);
 			connTunnel.sendMessage('connect')
 			connTunnel.sendMessage('list')
 		}
 	}
 	
 	var listGuac = new Guacamole.Client(connTunnel);
+
+	listGuac.onversion = function(e) {
+		serverVersionList = parseInt(e[0]);
+	};
 	
 	listGuac.onlist = function(e) {
 		connTunnel.onstatechange = null;
 		listGuac.disconnect();
-		switch (e[3]) { 
-				case 0:
-				case 1:
-				{var scale=4;break;}
+
+		const increment = server_password_support(serverVersionList) ? 4 : 3;
+		for (var i = 0; i < e.length; i += increment) {
+			var url = e[i],
+				name = e[i + 1],
+				image = e[i + 2],
+				requiresPassword = 0;
+			if (url instanceof Uint8Array) url = textDecoder.decode(url);
+			if (name instanceof Uint8Array) name = textDecoder.decode(name);
+			if (image instanceof Uint8Array) image = BytesToBase64(image);
+			if (server_password_support(serverVersionList)) {
+				requiresPassword = e[i + 3];
+				if (requiresPassword instanceof Uint8Array)
+					requiresPassword = textDecoder.decode(requiresPassword);
+			}
 				
-				default: {var scale=3;break;}
-				}
-		for (var i = 0; i < e.length; i += scale) {
 			nodeList.push({
 				ip: ip,
-				url: e[i],
-				name: e[i + 1],
-				image: e[i + 2],
-				requiresPassword: e[i + 3]
+				url: url,
+				name: name,
+				image: image,
+				requiresPassword: requiresPassword
 			});
-	}
+		}
 		
 		nodeList.sort(function(a, b) {
 			return a.url > b.url ? 1 : -1;
@@ -1138,8 +1201,8 @@ window.multicollab = function(ip) {
 			
 			var div = document.createElement('div');
 			div.className = 'col-sm-5 col-md-3';
-			if(typeof requiresPassword !== 'undefined') {
-				div.setAttribute("cvm-requirespassword", requiresPassword);
+			if(typeof thisnode.requiresPassword !== 'undefined') {
+				div.setAttribute("cvm-requirespassword", thisnode.requiresPassword);
 			}else{
 				// gotta love backwards compatibility
 				div.setAttribute("cvm-requirespassword", 0);
@@ -1165,6 +1228,7 @@ window.multicollab = function(ip) {
 					event.preventDefault();
 					tunnel.onstatechange = null;
 					guac.disconnect(); // kill existing connection
+					serverVersion = 0;
 
 					// can't use thisnode because that's incredibly broken
 					// so we have to do this cursed being to get the node information
