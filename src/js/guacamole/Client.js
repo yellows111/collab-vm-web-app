@@ -34,6 +34,7 @@ var Guacamole = Guacamole || {};
 Guacamole.Client = function(tunnel) {
 
     const textDecoder = new TextDecoder();
+    const urlCreator = window.URL || window.webkitURL;
     var guac_client = this;
 
     var STATE_IDLE          = 0;
@@ -950,7 +951,8 @@ Guacamole.Client = function(tunnel) {
             if (layer instanceof Uint8Array) layer = textDecoder.decode(layer);
             if (x instanceof Uint8Array) x = textDecoder.decode(x);
             if (y instanceof Uint8Array) y = textDecoder.decode(y);
-            if (data instanceof Uint8Array) data = Guacamole.BytesToBase64(data);
+            var bloburl = null;
+            if (data instanceof Uint8Array) bloburl = urlCreator.createObjectURL(new Blob([data], { type: "image/png" }));
 
             channelMask = parseInt(channelMask);
             layer = getLayer(parseInt(layer));
@@ -958,7 +960,8 @@ Guacamole.Client = function(tunnel) {
             y = parseInt(y);
 
             display.setChannelMask(layer, channelMask);
-            display.draw(layer, x, y, "data:image/png;base64," + data);
+            display.draw(layer, x, y, bloburl || ("data:image/png;base64," + data));
+            if (bloburl) urlCreator.revokeObjectURL(bloburl);
 
         },
 

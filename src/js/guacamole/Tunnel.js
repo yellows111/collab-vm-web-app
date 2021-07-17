@@ -99,7 +99,7 @@ Guacamole.Tunnel = function() {
      *                           if any.
      */
     this.oninstruction = null;
-	
+
 };
 
 /**

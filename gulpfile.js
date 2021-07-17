@@ -45,7 +45,6 @@ const paths = {
 		'src/js/collab-vm/common.js', 
 		'src/js/collab-vm/en-us-qwerty.js',
 		'src/js/collab-vm/collab-vm.js',
-		'src/js/collab-vm/base64.js',
 		'src/js/collab-vm/jquery.history.js',
 	],
 

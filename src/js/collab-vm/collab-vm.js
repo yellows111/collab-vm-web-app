@@ -2,13 +2,11 @@ import common from "./common";
 import { en_us_qwerty_keyboard } from "./en-us-qwerty";
 
 import { History } from "./jquery.history.js";
-import { BytesToBase64 } from "./base64.js";
 
 // I'm sorry,
 // If you want to bitch at anyone, bitch at Glyptodon
 import { GetGuacamole } from "../../../tmp/guacamole.module.js";
 const Guacamole = GetGuacamole();
-Guacamole.BytesToBase64 = BytesToBase64; // can't import within Client.js so have to do this shit
 
 /** @const
  * Client version.
@@ -22,6 +20,7 @@ var serverVersionList; // because if you click on a vm while multicollab is runn
 const server_password_support = (ver) => (ver & (1 << 1)) != 0;
 const server_binarymsg_support = (ver) => (ver & (1 << 2)) != 0;
 const textDecoder = new TextDecoder();
+window.urlCreator = window.URL || window.webkitURL;
 var nopInterval = -1;
 
 /** @const
@@ -495,7 +494,7 @@ function updateVMList(list) {
 	var vmList = $("#vm-list");
 	if (list.length) {
 		const increment = server_password_support(serverVersion) ? 4 : 3;
-		console.log("serverVersion:"+serverVersion+",serverVersionList:"+serverVersionList+",increment:"+increment+",list.length:"+list.length);//DEBUG
+		//console.log("serverVersion:"+serverVersion+",serverVersionList:"+serverVersionList+",increment:"+increment+",list.length:"+list.length);//DEBUG
 		for (var i = 0; i < list.length; i += increment) {
 			var url = list[i],
 				vmname = list[i + 1],
@@ -503,14 +502,20 @@ function updateVMList(list) {
 				reqpasswd = 0;
 			if (url instanceof Uint8Array) url = textDecoder.decode(url);
 			if (vmname instanceof Uint8Array) vmname = textDecoder.decode(vmname);
-			if (image instanceof Uint8Array) image = BytesToBase64(image);
+			var bloburl = null;
+			if (image instanceof Uint8Array) bloburl = urlCreator.createObjectURL(new Blob([image], { type: "image/png" }));
 			if (server_password_support(serverVersion)) {
 				reqpasswd = list[i + 3];
 				if (reqpasswd instanceof Uint8Array)
 					reqpasswd = textDecoder.decode(reqpasswd);
 			}
+			var onload = '';
+			if (bloburl) {
+				const the = '"urlCreator.revokeObjectURL(\''+bloburl+'\');"';
+				onload = ' onload='+the+' onerror='+the;
+			}
 			var e = $('<div class="col-sm-5 col-md-3" cvm-requirespassword="'+reqpasswd+'"'+'><a class="thumbnail" href="#' + common.rootDir + "/" + url + '">' +
-				(list[i+2] ? '<img src="data:image/png;base64,' + image + '"/>' : "") +
+				(list[i+2] ? '<img'+onload+' src="'+(bloburl||('data:image/png;base64,' + image)) + '"/>' : "") +
 				'<div class="caption"><h4>' + vmname + '</h4></div></a></div>');
 			// Add click handler to anchor tag for history
 			e.children().first().click(function(e) {
@@ -1173,19 +1178,22 @@ window.multicollab = function(ip) {
 				requiresPassword = 0;
 			if (url instanceof Uint8Array) url = textDecoder.decode(url);
 			if (name instanceof Uint8Array) name = textDecoder.decode(name);
-			if (image instanceof Uint8Array) image = BytesToBase64(image);
+			var bloburl = null;
+			if (image instanceof Uint8Array) bloburl = urlCreator.createObjectURL(new Blob([image], { type: "image/png" }));
 			if (server_password_support(serverVersionList)) {
 				requiresPassword = e[i + 3];
 				if (requiresPassword instanceof Uint8Array)
 					requiresPassword = textDecoder.decode(requiresPassword);
 			}
-				
+			var theUm = false;
+			if (bloburl) theUm = true;
 			nodeList.push({
 				ip: ip,
 				url: url,
 				name: name,
-				image: image,
-				requiresPassword: requiresPassword
+				image: bloburl || ('data:image/png;base64,' + image),
+				requiresPassword: requiresPassword,
+				needReleaseBlob: theUm //ternary operator does not work here?
 			});
 		}
 		
@@ -1217,10 +1225,15 @@ window.multicollab = function(ip) {
 			// If the image is empty, then this is a VM that uses
 			// computernewb screenshots. Otherwise, we should use the base64
 			// payload the server sends.
-			if (thisnode.image === "") {
+			if (thisnode.image.length === 0) {
 				checkforcnewbss = '<img src="http://computernewb.com/screenshots/' + thisnode.url + '.jpg"/><div class="caption"><h4>' + thisnode.name + "</h4></div>"
 			} else {
-				checkforcnewbss = (thisnode.image ? '<img src="data:image/png;base64,' + thisnode.image + '"/>' : "") + '<div class="caption"><h4>' + thisnode.name + "</h4></div>"
+				var onload = '';
+				if (thisnode.needReleaseBlob) {
+					const the = '"urlCreator.revokeObjectURL(\''+thisnode.image+'\');"';
+					onload = ' onload='+the+' onerror='+the;
+				}
+				checkforcnewbss = (thisnode.image ? '<img'+onload+' src="' + thisnode.image + '"/>' : "") + '<div class="caption"><h4>' + thisnode.name + "</h4></div>"
 			}
 
 			link.innerHTML=checkforcnewbss;
