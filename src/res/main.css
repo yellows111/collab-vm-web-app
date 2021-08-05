@@ -54,28 +54,28 @@ div#display {
 table {
     color: gray;
 }
-.user.list-group-item {
+.user.attached.ui.segment {
     color: black;
 }
-.current-user.list-group-item {
+.current-user.attached.ui.segment {
 	font-style: italic;
 }
-.admin.list-group-item, .message-pane > li > div > span.admin {
+.admin.attached.ui.segment, .message-pane > li > div > span.admin {
     font-weight: bold;
     color: red;
 }
-.moderator.list-group-item, .message-pane > li > div > span.moderator {
+.moderator.attached.ui.segment, .message-pane > li > div > span.moderator {
     font-weight: bold;
     color: green;
 }
-.dev.list-group-item, .message-pane > li > div > span.dev {
+.dev.attached.ui.segment, .message-pane > li > div > span.dev {
     font-weight: bold;
     color: blue;
 }
-.waiting-turn.list-group-item {
+.waiting-turn.attached.ui.segment {
     background-color: #FFFFB3;
 }
-.has-turn.list-group-item {
+.has-turn.attached.ui.segment {
     background-color: #CFF2FC;
 }
 .message-pane-wrapper {
@@ -558,3 +558,5 @@ div#btns {
     opacity: 1;
     color: #ffb70a;
 }
+
+.attached.ui.segment {padding: 10px 15px}
