@@ -1149,7 +1149,8 @@ window.multicollab = function(ip) {
 					ip: ip,
 					url: e[i],
 					name: e[i + 1],
-					image: e[i + 2]
+					image: e[i + 2],
+					requiresPassword: e[i + 3]
 				});
 		}
 		
