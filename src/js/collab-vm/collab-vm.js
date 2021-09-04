@@ -106,6 +106,7 @@ var connected = false;
  * List of the nodes this instance of the webapp knows about.
  */
 var nodeList = [];
+var nodesBloburls = [];
 
 /**
  * File upload operation.
@@ -481,6 +482,10 @@ function displayVMView(show) {
 	} else {
 		$("#vm-list").hide();
 		$("#vm-view").show();
+		for (var item of nodesBloburls) {
+			urlCreator.revokeObjectURL(item);
+		}
+		nodesBloburls = [];
 		osk.resize($("#kbd-container").width());
 	}
 }
@@ -509,13 +514,12 @@ function updateVMList(list) {
 				if (reqpasswd instanceof Uint8Array)
 					reqpasswd = textDecoder.decode(reqpasswd);
 			}
-			var onload = '';
 			if (bloburl) {
-				const the = '"urlCreator.revokeObjectURL(\''+bloburl+'\');"';
-				onload = ' onload='+the+' onerror='+the;
+				if (!nodesBloburls.includes(bloburl))
+					nodesBloburls.push(bloburl);
 			}
 			var e = $('<div class="col-sm-5 col-md-3" cvm-requirespassword="'+reqpasswd+'"'+'><a class="thumbnail" href="#' + common.rootDir + "/" + url + '">' +
-				(list[i+2] ? '<img'+onload+' src="'+(bloburl||('data:image/png;base64,' + image)) + '"/>' : "") +
+				(list[i+2] ? '<img src="'+(bloburl||('data:image/png;base64,' + image)) + '"/>' : "") +
 				'<div class="caption"><h4>' + vmname + '</h4></div></a></div>');
 			// Add click handler to anchor tag for history
 			e.children().first().click(function(e) {
@@ -1228,12 +1232,11 @@ window.multicollab = function(ip) {
 			if (thisnode.image.length === 0) {
 				checkforcnewbss = '<img src="http://computernewb.com/screenshots/' + thisnode.url + '.jpg"/><div class="caption"><h4>' + thisnode.name + "</h4></div>"
 			} else {
-				var onload = '';
 				if (thisnode.needReleaseBlob) {
-					const the = '"urlCreator.revokeObjectURL(\''+thisnode.image+'\');"';
-					onload = ' onload='+the+' onerror='+the;
+					if (!nodesBloburls.includes(thisnode.image))
+						nodesBloburls.push(thisnode.image);
 				}
-				checkforcnewbss = (thisnode.image ? '<img'+onload+' src="' + thisnode.image + '"/>' : "") + '<div class="caption"><h4>' + thisnode.name + "</h4></div>"
+				checkforcnewbss = (thisnode.image ? '<img src="' + thisnode.image + '"/>' : "") + '<div class="caption"><h4>' + thisnode.name + "</h4></div>"
 			}
 
 			link.innerHTML=checkforcnewbss;

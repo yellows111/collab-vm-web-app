@@ -537,10 +537,11 @@ Guacamole.Display = function() {
      * @param {Number} y The destination Y coordinate.
      * @param {String} url The URL of the image to draw.
      */
-    this.draw = function(layer, x, y, url) {
+    this.draw = function(layer, x, y, url, ondraw) {
 
         var task = scheduleTask(function __display_draw() {
             layer.drawImage(x, y, image);
+			if (ondraw) ondraw();
         }, true);
 
         var image = new Image();

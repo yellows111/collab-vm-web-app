@@ -960,8 +960,7 @@ Guacamole.Client = function(tunnel) {
             y = parseInt(y);
 
             display.setChannelMask(layer, channelMask);
-            display.draw(layer, x, y, bloburl || ("data:image/png;base64," + data));
-            if (bloburl) urlCreator.revokeObjectURL(bloburl);
+            display.draw(layer, x, y, bloburl || ("data:image/png;base64," + data), () => { if (bloburl) urlCreator.revokeObjectURL(bloburl); } );
 
         },
 
