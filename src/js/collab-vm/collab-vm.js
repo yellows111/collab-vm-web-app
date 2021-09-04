@@ -108,6 +108,9 @@ var connected = false;
 var nodeList = [];
 var nodesBloburls = [];
 
+var vmPassword = null;
+var vmLink = null;
+
 /**
  * File upload operation.
  * @enum {number}
@@ -530,6 +533,8 @@ function updateVMList(list) {
 					common.debugLog("connect " + name);
 					vmName = name;
 					if(this.parentElement.getAttribute("cvm-requirespassword")=="1") { // the =="1" here is very important, dont remove it
+						vmLink = null;
+						$("#password-box").val("");
 						$("#password-modal").modal('show');
 					}else{
 						tunnel.sendMessage("connect", vmName);
@@ -776,7 +781,10 @@ function InitalizeGuacamoleClient() {
 				tunnel.sendMessage("rename");
 			
 			if (vmName) {
-				tunnel.sendMessage("connect", vmName);
+				if (vmPassword === null)
+					tunnel.sendMessage("connect", vmName);
+				else
+					tunnel.sendMessage("connect", vmName, vmPassword);
 			} else {
 				displayVMList();
 				tunnel.sendMessage("list");
@@ -962,7 +970,8 @@ function InitalizeGuacamoleClient() {
 				History.pushState(null, null, common.rootDir);
 				break;
 			case 3: {
-				alert("Invalid password specified.")
+				vmPassword = null;
+				alert("Invalid password specified.");
 				break;
 			}
 		}
@@ -1262,6 +1271,13 @@ window.multicollab = function(ip) {
 						return;
 					}
 					
+					if(node.requiresPassword == "1" && !vmPassword) {
+						vmLink = link;
+						$("#password-box").val("");
+						$("#password-modal").modal('show');
+						return;
+					}
+
 					var display = document.getElementById('display');
 					if(display.firstChild)
 							display.removeChild(display.firstChild);
@@ -1396,8 +1412,20 @@ $(function() {
 	
 	$("#password-ok-btn").click(function() {
 		var password = $("#password-box").val().trim();
-		tunnel.sendMessage('connect', vmName, password);
+		if (password === "") {
+			$("#password-modal").modal("hide");
+			return;
+		}
+		vmPassword = password;
+		if (!vmLink)
+			tunnel.sendMessage('connect', vmName, password);
+		else
+			vmLink.click();
 		$("#password-modal").modal("hide");
+	});
+
+	$("#password-modal").on('shown.bs.modal', function() {
+		$("#password-box").focus();
 	});
 
 	$("#username-box").keydown(function(e) {
