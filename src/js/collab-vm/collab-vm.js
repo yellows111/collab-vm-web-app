@@ -1147,20 +1147,8 @@ window.multicollab = function(ip) {
 			var link = document.createElement('a');
 			link.className = 'thumbnail';
 			link.href = '#' + thisnode.url;
-
-			// this one makes me actually want to fucking set up a jslint thing
-			var checkforcnewbss = "";
-
-			// If the image is empty, then this is a VM that uses
-			// computernewb screenshots. Otherwise, we should use the base64
-			// payload the server sends.
-			if (thisnode.image === "") {
-				checkforcnewbss = '<img src="http://computernewb.com/screenshots/' + thisnode.url + '.jpg"/><div class="caption"><h4>' + thisnode.name + "</h4></div>"
-			} else {
-				checkforcnewbss = (thisnode.image ? '<img src="data:image/png;base64,' + thisnode.image + '"/>' : "") + '<div class="caption"><h4>' + thisnode.name + "</h4></div>"
-			}
-
-			link.innerHTML=checkforcnewbss;
+			link.innerHTML = (thisnode.image ? '<img src="data:image/png;base64,' + thisnode.image + '"/>' : '') + '<div class="caption"><h4>' + thisnode.name + '</h4></div>';
+			
 			link.onclick = function(event) {
 					event.preventDefault();
 					tunnel.onstatechange = null;
