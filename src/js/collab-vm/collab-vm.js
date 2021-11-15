@@ -205,7 +205,7 @@ var admin = {
 
 function addTableRow(table, user, userData) {
 	var data = document.createElement("LI");
-	data.className = "list-group-item";
+	data.className = "attached ui segment";
 
 	var userHTML;
 	if ((usersData[username][0] == 2 || usersData[username][0] == 3) && user !== username) {
