@@ -1175,9 +1175,6 @@ window.multicollab = function(ip) {
 				// gotta love backwards compatibility
 				div.setAttribute("cvm-requirespassword", 0);
 			}
-
-			// this one makes me actually want to fucking set up a jslint thing
-			var checkforcnewbss = "";
 			var isoffical = "";
 			var requirespw = "";
 			// If the image is empty, then this is a VM that uses
@@ -1190,13 +1187,8 @@ window.multicollab = function(ip) {
 				requirespw = '<span data-tooltip="Requires Password" data-delay="5000" data-position="top left" data-variation="tiny">&nbsp;<i class="key icon"></i></span>'
 			}
 			else { requirespw = ""; }
-			if (thisnode.image === "") {
-				checkforcnewbss = listhack+'<img src="http://computernewb.com/screenshots/' + thisnode.url + '.jpg"/>'+'</a><div class="content"><a href="'+tmphref+'" class="header">' + thisnode.name + isoffical + requirespw +"</a></div>";
-			} else {
-				checkforcnewbss = (thisnode.image ? listhack+'<img src="data:image/png;base64,' + thisnode.image + '"/>' : "") + '</a><div class="content"><a href="'+tmphref+'" class="header">' + thisnode.name + isoffical + requirespw +"</a></div>";
-			}
 
-			div.innerHTML=checkforcnewbss;
+			div.innerHTML = (thisnode.image ? listhack+'<img src="data:image/png;base64,' + thisnode.image + '"/>' : "") + '</a><div class="content"><a href="'+tmphref+'" class="header">' + thisnode.name + isoffical + requirespw +"</a></div>";
 			div.onclick = function(event) {
 					event.preventDefault();
 					tunnel.onstatechange = null;
