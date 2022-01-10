@@ -484,14 +484,14 @@ function displayVMView(show) {
 
 /**
  * Displays a list of VMs along with their thumbnails and names.
- * @param {Array<string>} list An array consisting of 4 values for each VM:
- * the short name, the display name, the base64-encoded thumbnail, and if a password is needed or not.
+ * @param {Array<string>} list An array consisting of 3 values for each VM:
+ * the short name, the display name, and the base64-encoded thumbnail.
  */
 function updateVMList(list) {
 	var vmList = $("#vm-list");
 	if (list.length) {
-		for (var i = 0; i < list.length; i += 4) {
-			var e = $('<div class="card" cvm-requirespassword="'+list[i+3]+'"'+'><a class="image" href="#' + common.rootDir + "/" + list[i] + '">' +
+		for (var i = 0; i < list.length; i += 3) {
+			var e = $('<div class="card"><a class="image" href="#' + common.rootDir + "/" + list[i] + '">' +
 				(list[i+2] ? '<img src="data:image/png;base64,' + list[i+2] + '"/>' : "") +
 				'</a><div class="content"><a'+' href="#' + common.rootDir + "/" + list[i]+'" class="header">' + list[i+1] + '</a></div></div>');
 			// Add click handler to anchor tag for history
@@ -502,19 +502,7 @@ function updateVMList(list) {
 					var name =  this.getAttribute("href").substr(this.getAttribute("href").lastIndexOf('/')+1);
 					common.debugLog("connect " + name);
 					vmName = name;
-					if(this.parentElement.getAttribute("cvm-requirespassword")=="1") { // the =="1" here is very important, dont remove it
-						$("#password-modal").modal({onApprove:function() {
-							var password = $("#password-box").val().trim();
-							if (password) {
-								$('#password-modal').modal("hide");
-								common.debugLog("VM Password: " + password);
-								// TODO: close modal when WebSocket disconnects
-								tunnel.sendMessage("connect", vmName, password);
-							}
-						}}).modal("show");
-					}else{
-						tunnel.sendMessage("connect", vmName);
-					}
+					tunnel.sendMessage("connect", vmName);
 				}
 			});
 			// If there is an image and the NSFW warning is visible, it should be censored
@@ -930,7 +918,7 @@ function InitalizeGuacamoleClient() {
 				History.pushState(null, null, common.rootDir);
 				break;
 			case 3: {
-				alert("Invalid password specified.")
+				alert("The server does not accept your webapp's version.")
 				break;
 			}
 		}
@@ -1135,22 +1123,13 @@ window.multicollab = function(ip) {
 	listGuac.onlist = function(e) {
 		connTunnel.onstatechange = null;
 		listGuac.disconnect();
-		
-		switch (e[3]) { 
-			case 0:
-			case 1:
-			{var scale=4;break;}
 			
-			default: {var scale=3;break;}
-		}
-			
-		for (var i = 0; i < e.length; i += scale) {
+		for (var i = 0; i < e.length; i += 3) {
 				nodeList.push({
 					ip: ip,
 					url: e[i],
 					name: e[i + 1],
 					image: e[i + 2],
-					requiresPassword: e[i + 3]
 				});
 		}
 		
@@ -1169,26 +1148,15 @@ window.multicollab = function(ip) {
 			var tmphref = '#' + thisnode.url;
 			var listhack = '<a class="image" href="'+tmphref+'">'
 			
-			if(typeof requiresPassword !== 'undefined') {
-				div.setAttribute("cvm-requirespassword", requiresPassword);
-			}else{
-				// gotta love backwards compatibility
-				div.setAttribute("cvm-requirespassword", 0);
-			}
 			var isoffical = "";
-			var requirespw = "";
-			// If the image is empty, then this is a VM that uses
-			// computernewb screenshots. Otherwise, we should use the base64
-			// payload the server sends.
+			// If the IP name of the node is equal to computernewb.com OR the current IP of the webapp...
+			// show a star to denote that this is an official VM (either of computernewb, or the hoster)
+			// (this is broken with the proxy update, please fix)
 			if (thisnode.ip.split(":")[0]==window.location.hostname||thisnode.ip.split(":")[0]=="computernewb.com") {
 			isoffical = '<span data-tooltip="Official VM" data-delay="5000" data-position="top left" data-variation="tiny">&nbsp;<i class="star icon"></i></span>';}
 			else { isoffical = ""; }
-			if (thisnode.requiresPassword == 1) {
-				requirespw = '<span data-tooltip="Requires Password" data-delay="5000" data-position="top left" data-variation="tiny">&nbsp;<i class="key icon"></i></span>'
-			}
-			else { requirespw = ""; }
 
-			div.innerHTML = (thisnode.image ? listhack+'<img src="data:image/png;base64,' + thisnode.image + '"/>' : "") + '</a><div class="content"><a href="'+tmphref+'" class="header">' + thisnode.name + isoffical + requirespw +"</a></div>";
+			div.innerHTML = (thisnode.image ? listhack+'<img src="data:image/png;base64,' + thisnode.image + '"/>' : "") + '</a><div class="content"><a href="'+tmphref+'" class="header">' + thisnode.name + isoffical +"</a></div>";
 			div.onclick = function(event) {
 					event.preventDefault();
 					tunnel.onstatechange = null;
@@ -1349,13 +1317,6 @@ $(function() {
 			$("#username-ok-btn").trigger("click");
 		}
 	});		
-	$("#password-box").keydown(function(e) {
-		if (e.which === 13) {
-			// Enter key
-			e.preventDefault();
-			$("#password-ok-btn").trigger("click");
-		}
-	});	
 	$("#admin-login-box").keydown(function(e) {
 		if (e.which === 13) {
 			// Enter key
