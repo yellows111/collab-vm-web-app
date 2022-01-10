@@ -472,14 +472,14 @@ function displayVMView(show) {
 
 /**
  * Displays a list of VMs along with their thumbnails and names.
- * @param {Array<string>} list An array consisting of 4 values for each VM:
- * the short name, the display name, the base64-encoded thumbnail, and if a password is needed or not.
+ * @param {Array<string>} list An array consisting of 3 values for each VM:
+ * the short name, the display name and the base64-encoded thumbnail.
  */
 function updateVMList(list) {
 	var vmList = $("#vm-list");
 	if (list.length) {
-		for (var i = 0; i < list.length; i += 4) {
-			var e = $('<div class="col-sm-5 col-md-3" cvm-requirespassword="'+list[i+3]+'"'+'><a class="thumbnail" href="#' + common.rootDir + "/" + list[i] + '">' +
+		for (var i = 0; i < list.length; i += 3) {
+			var e = $('<div class="col-sm-5 col-md-3"><a class="thumbnail" href="#' + common.rootDir + "/" + list[i] + '">' +
 				(list[i+2] ? '<img src="data:image/png;base64,' + list[i+2] + '"/>' : "") +
 				'<div class="caption"><h4>' + list[i+1] + '</h4></div></a></div>');
 			// Add click handler to anchor tag for history
@@ -490,11 +490,7 @@ function updateVMList(list) {
 					var name =  this.getAttribute("href").substr(this.getAttribute("href").lastIndexOf('/')+1);
 					common.debugLog("connect " + name);
 					vmName = name;
-					if(this.parentElement.getAttribute("cvm-requirespassword")=="1") { // the =="1" here is very important, dont remove it
-						$("#password-modal").modal('show');
-					}else{
-						tunnel.sendMessage("connect", vmName);
-					}
+					tunnel.sendMessage("connect", vmName);
 				}
 			});
 			// If there is an image and the NSFW warning is visible, it should be censored
@@ -904,7 +900,7 @@ function InitalizeGuacamoleClient() {
 				History.pushState(null, null, common.rootDir);
 				break;
 			case 3: {
-				alert("Invalid password specified.")
+				alert("The server does not accept your webapp's version.")
 				break;
 			}
 		}
@@ -1109,20 +1105,12 @@ window.multicollab = function(ip) {
 	listGuac.onlist = function(e) {
 		connTunnel.onstatechange = null;
 		listGuac.disconnect();
-		switch (e[3]) { 
-				case 0:
-				case 1:
-				{var scale=4;break;}
-				
-				default: {var scale=3;break;}
-				}
-		for (var i = 0; i < e.length; i += scale) {
+		for (var i = 0; i < e.length; i += 3) {
 			nodeList.push({
 				ip: ip,
 				url: e[i],
 				name: e[i + 1],
 				image: e[i + 2],
-				requiresPassword: e[i + 3]
 			});
 	}
 		
@@ -1138,12 +1126,6 @@ window.multicollab = function(ip) {
 			
 			var div = document.createElement('div');
 			div.className = 'col-sm-5 col-md-3';
-			if(typeof requiresPassword !== 'undefined') {
-				div.setAttribute("cvm-requirespassword", requiresPassword);
-			}else{
-				// gotta love backwards compatibility
-				div.setAttribute("cvm-requirespassword", 0);
-			}
 			var link = document.createElement('a');
 			link.className = 'thumbnail';
 			link.href = '#' + thisnode.url;
@@ -1300,12 +1282,6 @@ $(function() {
 				tunnel.sendMessage("rename", newUsername);
 			}
 		}
-	});
-	
-	$("#password-ok-btn").click(function() {
-		var password = $("#password-box").val().trim();
-		tunnel.sendMessage('connect', vmName, password);
-		$("#password-modal").modal("hide");
 	});
 
 	$("#username-box").keydown(function(e) {
