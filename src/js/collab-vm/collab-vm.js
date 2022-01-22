@@ -1151,8 +1151,10 @@ window.multicollab = function(ip) {
 			var isoffical = "";
 			// If the IP name of the node is equal to computernewb.com OR the current IP of the webapp...
 			// show a star to denote that this is an official VM (either of computernewb, or the hoster)
-			// (this is broken with the proxy update, please fix)
-			if (thisnode.ip.split(":")[0]==window.location.hostname||thisnode.ip.split(":")[0]=="computernewb.com") {
+			// i should of just used the URL object the whole time lol
+			var checkagainst = (new URL("ws://"+thisnode.ip).hostname);
+			console.log(thisnode.name);
+			if ((checkagainst===window.location.hostname)||(checkagainst==="computernewb.com")) {
 			isoffical = '<span data-tooltip="Official VM" data-delay="5000" data-position="top left" data-variation="tiny">&nbsp;<i class="star icon"></i></span>';}
 			else { isoffical = ""; }
 
