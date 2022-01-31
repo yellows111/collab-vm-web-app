@@ -1104,8 +1104,22 @@ function InitalizeGuacamoleClient() {
 	keyboard = new Guacamole.Keyboard(document);
 }
 
-window.multicollab = function(ip) {
-	var connTunnel = new Guacamole.WebSocketTunnel((location.protocol == "https:" ? "wss://" : "ws://") + ip + '/');
+window.multicollab = function(ip, isWss) {
+	if (typeof isWss !== 'undefined') {
+		switch(isWss) {
+		case true:
+			var prefix = "wss://";
+			break;
+		case false:
+			var prefix = "ws://";
+			break;
+		}
+	}
+	else { 
+	var prefix = (location.protocol == "https:" ? "wss://" : "ws://");
+	}
+	
+	var connTunnel = new Guacamole.WebSocketTunnel(prefix + ip + '/');
 	
 	connTunnel.onstatechange = function(code) {
 		if (code == 2) {
@@ -1498,6 +1512,10 @@ $(function() {
 	common.additionalNodes.forEach((node) => {
 		common.debugLog("Add additional node " + node);
 		multicollab(node);
+	});	
+	common.additionalNodesSecure.forEach((node) => {
+		common.debugLog("Add additional secure node " + node);
+		multicollab(node, true);
 	});
 });
 
