@@ -37,5 +37,14 @@ export default {
 	 * @const
 	 */
 	additionalNodes: [
+	],	
+	
+	/**
+	 * Additional secure nodes to connect to.
+	 * Uses multicollab(%s, true) to do so
+	 * @const
+	 */
+	 
+	additionalNodesSecure: [
 	]
 };
