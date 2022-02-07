@@ -560,3 +560,15 @@ div#btns {
 }
 
 .attached.ui.segment {padding: 10px 15px}
+
+.ui.card>.content .warning.icon:hover, .ui.cards>.card>.content .warning.icon:hover {
+    opacity: 1;
+    color: 	#ff0a0a;
+}
+
+.ui.card>.content .warning.icon, .ui.cards>.card>.content .warning.icon {
+    cursor: pointer;
+    opacity: .75;
+    -webkit-transition: color .1s ease;
+    transition: color .1s ease;
+}

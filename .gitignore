@@ -5,3 +5,6 @@ build.*
 # HISTORIC old drop that the webapp doesn't use
 src/html/guacamole.min.js
 tmp/
+
+# merge backups
+*.bak
