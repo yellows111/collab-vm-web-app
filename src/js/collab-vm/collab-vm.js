@@ -490,6 +490,7 @@ function displayVMView(show) {
 function updateVMList(list) {
 	var vmList = $("#vm-list");
 	if (list.length) {
+		console.warn("It appears you are using a serverAddress which has nodes.\nThis can create undefined behavior when parsed.\nPlease use a serverAddress which isn't hosting nodes.");
 		for (var i = 0; i < list.length; i += 3) {
 			var e = $('<div class="card"><a class="image" href="#' + common.rootDir + "/" + list[i] + '">' +
 				(list[i+2] ? '<img src="data:image/png;base64,' + list[i+2] + '"/>' : "") +
