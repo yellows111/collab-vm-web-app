@@ -29,7 +29,7 @@ export default {
 	 * The main node this webapp is configured to connect to.
 	 * @const
 	 */
-	serverAddress: window.location.host,
+	serverAddress: "localhost:6004",
 
 	/**
 	 * Additional nodes to connect to.
