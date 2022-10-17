@@ -15,7 +15,7 @@ jobs:
     outputs:
       skip: ${{ steps.result_step.outputs.result }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@main
         with:
           fetch-depth: 0
       - uses: mstachniuk/ci-skip@master
@@ -33,9 +33,9 @@ jobs:
       matrix:
         node-version: [12.x, 14.x, 16.x]
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@main
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@main
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm install --global gulp-cli
