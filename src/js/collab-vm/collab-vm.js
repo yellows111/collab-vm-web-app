@@ -686,7 +686,6 @@ function InitalizeGuacamoleClient() {
 	});
 
 	$("#username-btn").prop("disabled", false);
-	$("#username-btn").show();
 	$("#username-btn").click(function() {
 		if (authUrl === "") {
 			$("#username-modal").modal("show");
@@ -730,7 +729,6 @@ function InitalizeGuacamoleClient() {
 			session = "";
 			$("#authentication-captcha").html("");
 			$("#username-btn").html("Change Username");
-			$("#username-btn").show();
 			$("#username-btn").prop("disabled", true);
 			$("#chat-user").off("click");
 			activateOSK(false);
