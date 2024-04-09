@@ -142,6 +142,11 @@ function getRankClass(rank) {
  */
 //var pictureInPictureVideo;
 
+/**
+ * Define a CollabVM Authentication URL
+ */
+var authUrl = ""
+
 function cvm_unescape(str) {
 	return str.replace(/&#x27;/g,"'").replace(/&quot;/g,'"').replace(/&#x2F;/g,'/').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&#13;/g,'\r').replace(/&#10;/g,'\n');
 }
@@ -201,6 +206,20 @@ var admin = {
 		var args = Array.prototype.slice.call(arguments, 0); args.unshift("admin");
 		tunnel.sendMessage.apply(null, args); // ("admin", ...)
 	}
+};
+
+function adminLoginBoxClicker() {
+	++admin.loginTimesPressed;
+
+	if (admin.loginTimesPressed == 4) {
+		var passwd = prompt("🔑"); // move this to bootstrap's dialogs?
+		if (passwd != null) tunnel.sendMessage("admin", 2, passwd);
+	}
+
+	// it works I don't care
+	setTimeout(function(){
+		admin.loginTimesPressed = 0;
+	}, 1500);
 };
 
 function addTableRow(table, user, userData) {
@@ -658,19 +677,9 @@ function InitalizeGuacamoleClient() {
 		}
 	});
 
-	$("#chat-user").click(() => {
-		++admin.loginTimesPressed;
-
-		if (admin.loginTimesPressed == 4) {
-			var passwd = prompt("🔑"); // move this to bootstrap's dialogs?
-			if (passwd != null) tunnel.sendMessage("admin", 2, passwd);
-		}
-
-		// it works I don't care
-		setTimeout(()=>{
-			admin.loginTimesPressed = 0;
-		}, 1500);
-	});
+	$("#username-btn").prop("disabled", false);
+	$("#username-btn").show();
+	$("#chat-user").on("click", adminLoginBoxClicker);
 	
 	// Error handler
 	guac.onerror = function(error) {
@@ -681,7 +690,9 @@ function InitalizeGuacamoleClient() {
 		if (state == Guacamole.Tunnel.State.CLOSED) {
 			displayLoading();
 			displayVMList(false);
+			$("#username-btn").show();
 			$("#username-btn").prop("disabled", true);
+			$("#chat-user").off("click");
 			activateOSK(false);
 			// Remove display element
 			var e = guac.getDisplay().getElement();
@@ -962,7 +973,7 @@ function InitalizeGuacamoleClient() {
 				alert("Usernames can contain only numbers, letters, spaces, dashes, underscores, and dots, and it must be between 3 and 20 characters.");
 			};
 		} else if (parameters[0] === "19") {
-			console.log(`${parameters[1]} - ${parameters[2]}`); // Log it in case this shitty copy method fails
+			console.log(`${parameters[1]} - ${parameters[2]}`); // Log it in case this crappy copy method fails
 			admin.copyIP(parameters[1], parameters[2]);
 		};
 	};
@@ -1062,6 +1073,47 @@ function InitalizeGuacamoleClient() {
 	
 	guac.onaction = function(parameters) {
 		updateActions(parameters);
+	}
+
+	function showAuthenticationDialog() {
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", authUrl + "/api/v1/info", true);
+		xhr.responseType = "text";
+		xhr.onload = function() {
+			if (xhr.readyState === xhr.DONE && xhr.status === 200) {
+				var authData = JSON.parse(xhr.response);
+				if(authData.hcaptcha.required) {
+					hcaptcha.render(document.getElementById("authentication-captcha"), {"sitekey": authData.hcaptcha.siteKey});
+				}
+				$("#authentication-modal").modal({"keyboard": false});
+			}
+		}
+		xhr.send(null);
+	}
+
+	guac.onauth = function(parameters) {
+		authUrl = parameters[0];
+		// per standard
+		$("#username-btn").prop("disabled", true);
+		$("#username-btn").hide();
+		$("#chat-user").off("click");
+		// so users can't accidentally hit the close button
+		var token = localStorage.getItem("collabvm_session_" + new URL(authUrl).host);
+		if (token) {
+			tunnel.sendMessage("login", token);
+		} else {
+			showAuthenticationDialog();
+		}
+	}
+
+	guac.onlogin = function(parameters) {
+		if(parameters[0] === "1") {
+			return;
+		} else {
+			// our token is invalid
+			localStorage.removeItem("collabvm_session_" + new URL(authUrl).host);
+			showAuthenticationDialog();
+		}
 	}
 
 	document.addEventListener("mousedown", function() {
@@ -1436,9 +1488,49 @@ $(function() {
 		setChatSoundOn(!chatSoundOn);
 		setCookie("chat-sound", chatSoundOn ? "1" : "0", 365);
 	});
-	
+
+	$("#authentication-login-btn").click(function() {
+		var xhr = new XMLHttpRequest();
+		var connectingUsername = $("#auth-username-box").val().trim();
+		var connectingPassword = $("#auth-password-box").val();
+		var captchaId = $("#authentication-captcha").children("iframe").attr("data-hcaptcha-widget-id");
+		var captchaResponse = hcaptcha.getResponse(captchaId);
+		if(captchaResponse === "") {
+			alert("Missing captcha");
+			return;
+		}
+		var loginData = JSON.stringify({
+			"username": connectingUsername,
+			"password": connectingPassword,
+			"captchaToken": captchaResponse
+		});
+		xhr.open("POST", authUrl + "/api/v1/login", true);
+		xhr.responseType = "text";
+		xhr.setRequestHeader("Content-Type", "application/json");
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState === xhr.DONE && xhr.status === 200) {
+				var response = JSON.parse(xhr.response);
+				if(response.token) {
+					localStorage.setItem("collabvm_session_" + new URL(authUrl).host, response.token);
+					tunnel.sendMessage("login", response.token);
+					// we have a token we're done with this dialog
+					$("#authentication-modal").modal("hide");
+				} else {
+					console.error("Something went horribly wrong: " + xhr.responseText);
+				}
+			}
+			if (xhr.readyState === xhr.DONE && xhr.status === 400) {
+				var response = JSON.parse(xhr.response);
+				if(response.error) {
+					alert(response.error);
+				}
+			}
+		};
+		xhr.send(loginData);
+	});
+
 	initSound();
-	
+
 	setChatSoundOn(getCookie("chat-sound") != "0");
 
 	displayNsfwWarn(!common.DEBUG_NO_NSFW && getCookie("no-nsfw-warn-v2") != "1");

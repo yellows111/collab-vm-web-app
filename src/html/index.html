@@ -16,6 +16,7 @@
 		<!-- endinject -->
 		<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+		<script src="https://js.hcaptcha.com/1/api.js"></script>
 		<!-- inject:js -->
 		<script type="text/javascript" src="all.min.js"></script>
 		<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/holder/2.9.1/holder.min.js"></script>-->
@@ -85,6 +86,35 @@
 					  </span>
 					</div>
 				  </div>
+				</div>
+			</div>
+		</div>
+		<div class="modal fade" id="authentication-modal" tabindex="-1" role="dialog" aria-labelledby="authentication-modal-label">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title" id="authentication-modal-label">Authentication Required</h4>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					</div>
+					<div class="modal-body">
+						<span>This VM requires server-side authentication. If you have an account, sign in here:</span>
+						<div class="input-group">
+							<span class="input-group-addon" id="auth-username-addon">Username</span>
+							<input type="text" class="form-control" aria-describedby="auth-username-addon" id="auth-username-box">
+						</div>
+						<div class="input-group">
+							<span class="input-group-addon" id="auth-password-addon">Password</span>
+							<input type="password" class="form-control" aria-describedby="auth-password-addon" id="auth-password-box">
+						</div>
+						<div class="input-group" id="authentication-captcha">
+						</div>
+						<br>
+						<p>Creating an account is not avaliable at this time.</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+						<button type="button" class="btn btn-primary" id="authentication-login-btn">OK</button>
+					</div>
 				</div>
 			</div>
 		</div>

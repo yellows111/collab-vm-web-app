@@ -449,6 +449,10 @@ Guacamole.Client = function(tunnel) {
 	 * Fired in response to an action instruction.
 	 */
 	this.onaction = null;
+	/**
+	 * Fired in response to an auth instruction.
+	 */
+	this.onauth = null;
 	
     /**
      * Returns the layer with the given index, creating it if necessary.
@@ -570,6 +574,14 @@ Guacamole.Client = function(tunnel) {
 		"file": function(parameters) {
 			if (guac_client.onfile)
                 guac_client.onfile(parameters);
+		},
+		"auth": function(parameters) {
+			if (guac_client.onauth)
+                guac_client.onauth(parameters);
+		},
+		"login": function(parameters) {
+			if (guac_client.onlogin)
+                guac_client.onlogin(parameters);
 		},
 		"nop": function() {
 			// Keep-alive
