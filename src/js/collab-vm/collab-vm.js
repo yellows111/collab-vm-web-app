@@ -145,7 +145,15 @@ function getRankClass(rank) {
 /**
  * Define a CollabVM Authentication URL
  */
-var authUrl = ""
+var authUrl = "";
+/**
+ * Define whether the user is authenticated or not.
+ */
+var loggedIn = false;
+/**
+ * Define the current session token
+ */
+var session = "";
 
 function cvm_unescape(str) {
 	return str.replace(/&#x27;/g,"'").replace(/&quot;/g,'"').replace(/&#x2F;/g,'/').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&#13;/g,'\r').replace(/&#10;/g,'\n');
@@ -679,6 +687,33 @@ function InitalizeGuacamoleClient() {
 
 	$("#username-btn").prop("disabled", false);
 	$("#username-btn").show();
+	$("#username-btn").click(function() {
+		if (authUrl === "") {
+			$("#username-modal").modal("show");
+		} else {
+			if (loggedIn) {
+				// POST the server to revoke the session
+				var xhr = new XMLHttpRequest();
+				xhr.open("POST", authUrl + "/api/v1/logout", true);
+				xhr.responseType = "text";
+				xhr.setRequestHeader("Content-Type", "application/json");
+				xhr.addEventListener('readystatechange', function() {
+					if (xhr.readyState !== xhr.DONE) return;
+					var response = JSON.parse(xhr.response);
+					if (!response.success) alert("Failed to revoke session: " + response.error);
+					localStorage.removeItem("collabvm_session_" + new URL(authUrl).host);
+					// Once the home button is fixed we should return to the VM list instead of this
+					window.location.reload();
+				});
+				xhr.send(JSON.stringify({ token: session }));
+				loggedIn = false;
+				session = "";
+				$("#username-btn").html("Login");
+			} else {
+				showAuthenticationDialog();
+			}
+		}
+	});
 	$("#chat-user").on("click", adminLoginBoxClicker);
 	
 	// Error handler
@@ -690,6 +725,10 @@ function InitalizeGuacamoleClient() {
 		if (state == Guacamole.Tunnel.State.CLOSED) {
 			displayLoading();
 			displayVMList(false);
+			authUrl = "";
+			loggedIn = false;
+			session = "";
+			$("#username-btn").html("Change Username");
 			$("#username-btn").show();
 			$("#username-btn").prop("disabled", true);
 			$("#chat-user").off("click");
@@ -1094,25 +1133,26 @@ function InitalizeGuacamoleClient() {
 	guac.onauth = function(parameters) {
 		authUrl = parameters[0];
 		// per standard
-		$("#username-btn").prop("disabled", true);
-		$("#username-btn").hide();
 		$("#chat-user").off("click");
 		// so users can't accidentally hit the close button
 		var token = localStorage.getItem("collabvm_session_" + new URL(authUrl).host);
 		if (token) {
+			session = token;
 			tunnel.sendMessage("login", token);
 		} else {
-			showAuthenticationDialog();
+			$("#username-btn").html("Login");
 		}
 	}
 
 	guac.onlogin = function(parameters) {
 		if(parameters[0] === "1") {
+			$("#username-btn").html("Logout");
+			loggedIn = true;
 			return;
 		} else {
 			// our token is invalid
 			localStorage.removeItem("collabvm_session_" + new URL(authUrl).host);
-			showAuthenticationDialog();
+			$("#username-btn").html("Login");
 		}
 	}
 
@@ -1508,18 +1548,19 @@ $(function() {
 		xhr.responseType = "text";
 		xhr.setRequestHeader("Content-Type", "application/json");
 		xhr.onreadystatechange = function() {
+			hcaptcha.reset(captchaId);
 			if (xhr.readyState === xhr.DONE && xhr.status === 200) {
 				var response = JSON.parse(xhr.response);
 				if(response.token) {
 					localStorage.setItem("collabvm_session_" + new URL(authUrl).host, response.token);
+					session = response.token;
 					tunnel.sendMessage("login", response.token);
 					// we have a token we're done with this dialog
 					$("#authentication-modal").modal("hide");
 				} else {
 					console.error("Something went horribly wrong: " + xhr.responseText);
 				}
-			}
-			if (xhr.readyState === xhr.DONE && xhr.status === 400) {
+			} else if (xhr.readyState === xhr.DONE) {
 				var response = JSON.parse(xhr.response);
 				if(response.error) {
 					alert(response.error);
