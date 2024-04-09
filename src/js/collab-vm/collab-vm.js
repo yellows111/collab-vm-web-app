@@ -728,6 +728,7 @@ function InitalizeGuacamoleClient() {
 			authUrl = "";
 			loggedIn = false;
 			session = "";
+			$("#authentication-captcha").html("");
 			$("#username-btn").html("Change Username");
 			$("#username-btn").show();
 			$("#username-btn").prop("disabled", true);
