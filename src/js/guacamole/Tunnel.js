@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-var Guacamole = Guacamole || {};
+export default function(Guacamole) {
 
 /**
  * Core object providing abstract communication for Guacamole. This object
@@ -920,3 +920,4 @@ Guacamole.ChainedTunnel = function(tunnel_chain) {
 };
 
 Guacamole.ChainedTunnel.prototype = new Guacamole.Tunnel();
+}

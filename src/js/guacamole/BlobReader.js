@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-var Guacamole = Guacamole || {};
+export default function(Guacamole) {
 
 /**
  * A reader which automatically handles the given input stream, assembling all
@@ -128,4 +128,4 @@ Guacamole.BlobReader = function(stream, mimetype) {
      */
     this.onend = null;
 
-};
+};}

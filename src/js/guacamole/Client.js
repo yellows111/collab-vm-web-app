@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-var Guacamole = Guacamole || {};
+export default function(Guacamole) {
 
 /**
  * Guacamole protocol client. Given a {@link Guacamole.Tunnel},
@@ -1317,3 +1317,4 @@ Guacamole.Client.DefaultTransferFunction = {
     }
 
 };
+}

@@ -1,0 +1,43 @@
+var Guacamole = {};
+
+import Display from './Display';
+import Parser from './Parser';
+import Client from './Client';
+import OnScreenKeyboard from './OnScreenKeyboard';
+import ArrayBufferReader from './ArrayBufferReader';
+import OutputStream from './OutputStream';
+import BlobReader from './BlobReader';
+import StringReader from './StringReader';
+import Mouse from './Mouse';
+import Tunnel from './Tunnel';
+import AudioChannel from './AudioChannel';
+import InputStream from './InputStream';
+import IntegerPool from './IntegerPool';
+import Keyboard from './Keyboard';
+import Status from './Status';
+import ArrayBufferWriter from './ArrayBufferWriter';
+import Layer from './Layer';
+import StringWriter from './StringWriter';
+import Version from './Version';
+
+Display(Guacamole);
+Parser(Guacamole);
+Client(Guacamole);
+OnScreenKeyboard(Guacamole);
+ArrayBufferReader(Guacamole);
+OutputStream(Guacamole);
+BlobReader(Guacamole);
+StringReader(Guacamole);
+Mouse(Guacamole);
+Tunnel(Guacamole);
+AudioChannel(Guacamole);
+InputStream(Guacamole);
+IntegerPool(Guacamole);
+Keyboard(Guacamole);
+Status(Guacamole);
+ArrayBufferWriter(Guacamole);
+Layer(Guacamole);
+StringWriter(Guacamole);
+Version(Guacamole);
+
+export default Guacamole;

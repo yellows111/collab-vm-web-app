@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-var Guacamole = Guacamole || {};
+export default function(Guacamole) {
 
 /**
  * The Guacamole display. The display does not deal with the Guacamole
@@ -1350,3 +1350,4 @@ Guacamole.Display.VisibleLayer = function(width, height) {
  * @type Number
  */
 Guacamole.Display.VisibleLayer.__next_id = 0;
+}

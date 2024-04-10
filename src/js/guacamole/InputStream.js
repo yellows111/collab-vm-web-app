@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-var Guacamole = Guacamole || {};
+export default function(Guacamole) {
 
 /**
  * An input stream abstraction used by the Guacamole client to facilitate
@@ -71,3 +71,4 @@ Guacamole.InputStream = function(client, index) {
     };
 
 };
+}

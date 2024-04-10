@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-var Guacamole = Guacamole || {};
+export default function(Guacamole) {
 
 /**
  * Provides cross-browser mouse events for a given element. The events of
@@ -1064,3 +1064,4 @@ Guacamole.Mouse.Touchscreen = function(element) {
     }, false);
 
 };
+}

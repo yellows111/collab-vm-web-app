@@ -3,10 +3,8 @@ import { en_us_qwerty_keyboard } from "./en-us-qwerty";
 
 import { History } from "./jquery.history.js";
 
-// I'm sorry,
-// If you want to bitch at anyone, bitch at Glyptodon
-import { GetGuacamole } from "../../../tmp/guacamole.module.js";
-const Guacamole = GetGuacamole();
+// this was a PITA to make work but it's not nearly as ass as the concatenation bullshit we had going before
+import Guacamole from '../guacamole/Guacamole.js'
 
 /** @const
  * Max number of characters in a chat message.
@@ -1115,7 +1113,7 @@ $(window).on("statechange", function() {
 	common.debugLog("statechange callled");
 });
 	
-$(function() {
+(function() {
 	// Try to set the text shadow property for the NSFW warning so it can
 	// be seen on dark backgrounds
 	var warnText = $("#warn-text");
@@ -1365,7 +1363,7 @@ $(function() {
 		common.debugLog("Add additional secure node " + node);
 		multicollab(node, true);
 	});
-});
+})();
 
 // Browser exports
 

@@ -9,23 +9,16 @@
 		<meta property="og:description" content="Control a computer (Windows, Linux, MacOS, etc) from your browser, for 18 seconds at a time, with strangers!"/>
 		<meta property="og:image" content="http://computernewb.com/starter.jpg"/>
 		<title>Control Collaborative Virtual Machines!</title>
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
-		<!-- inject:css -->
-		<link rel="stylesheet" type="text/css" href="../res/main.css"/>
-		<!-- endinject -->
-		<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+		<link rel="stylesheet" href="../../node_modules/bootstrap/dist/css/bootstrap.min.css">
+		<link rel="stylesheet" href="../../node_modules/bootstrap/dist/css/bootstrap-theme.min.css">
+		<link rel="stylesheet" type="text/css" href="../css/main.css"/>
+		<script src="../../node_modules/jquery/dist/jquery.min.js"></script>
+		<script src="../../node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
 		<script src="https://js.hcaptcha.com/1/api.js"></script>
-		<!-- inject:js -->
-		<script type="text/javascript" src="all.min.js"></script>
-		<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/holder/2.9.1/holder.min.js"></script>-->
-		<!-- endinject -->
-	   	<!-- inject:win-logo-ascii --><!-- endinject -->
+		<script type="module" type="text/javascript" src="../js/collab-vm/collab-vm.js"></script>
     </head>
     <body>
-		<!-- inject:navbar -->
-		<div class="navbar navbar-default navbar-static-top">
+		<nav class="navbar navbar-default navbar-static-top">
 			<div class="container-fluid">
 				<div class="navbar-header">
 					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -39,15 +32,15 @@
 					<ul class="nav navbar-nav">
 						<li><a href="/collab-vm/" id="home-btn">Home</a></li>
 						<li><a href="/collab-vm/faq" target="_blank">FAQ</a></li>
-						<li><a href="/collab-vm/news" target="_blank">News</a></li>
 						<li><a href="/collab-vm/rules" target="_blank">Rules</a></li>
-						<li><a href="/collab-vm/classic" target="_blank">Classic</a></li>
+						<li><a href="https://discord.gg/a4kqb4mGyX" target="_blank">Discord</a></li>
 						<li><a href="https://reddit.com/r/collabvm" target="_blank">Subreddit</a></li>
 					</ul>
+					<ul class="navbar-text navbar-right" style="margin-right: 0;"><a href="user-vm/">Check out UserVM for more VMs!</a></ul>
 				</div>
 			</div>
-		</div>
-		<!-- endinject -->
+		</nav>
+		
 		<div class="modal fade" id="username-modal" tabindex="-1" role="dialog" aria-labelledby="username-modal-label">
 			<div class="modal-dialog" role="document">
 				<div class="modal-content">

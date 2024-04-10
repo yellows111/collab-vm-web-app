@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-var Guacamole = Guacamole || {};
+export default function(Guacamole) {
 
 /**
  * A Guacamole status. Each Guacamole status consists of a status code, defined
@@ -185,3 +185,4 @@ Guacamole.Status.Code = {
     "CLIENT_TOO_MANY": 0x031D
 
 };
+}
