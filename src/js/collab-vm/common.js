@@ -26,12 +26,6 @@ export default {
 	chatSound: root + "notify",
 
 	/**
-	 * The main node this webapp is configured to connect to.
-	 * @const
-	 */
-	serverAddress: "localhost:6004",
-
-	/**
 	 * Additional nodes to connect to.
 	 * Uses multicollab() to do so
 	 * @const

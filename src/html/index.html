@@ -144,38 +144,7 @@
 				</div>
 				<button class="btn btn-default" id="nsfw-cont-btn">Continue</button></div>
 			</h4>
-			<div id="vm-list" style="display: none;">
-				<!--<div class="row">
-					<div class="col-sm-6 col-md-4">
-						<a class="thumbnail" href="#">
-							<img data-src="holder.js/300x200" alt="...">
-							<div class="caption">
-								<h4>Thumbnail label</h4>
-							</div>
-						</a>
-					</div>
-
-					<div class="col-sm-6 col-md-4">
-						<a class="thumbnail" href="#">
-							<img data-src="holder.js/300x200" alt="...">
-							<div class="caption">
-								<h4>Thumbnail label</h4>
-							</div>
-						</a>
-					</div>
-					
-					<div class="col-sm-6 col-md-4">
-						<a class="thumbnail" href="#">
-							<img data-src="holder.js/300x200" alt="...">
-							<div class="caption">
-								<h4>Thumbnail label</h4>
-							</div>
-						</a>
-					</div>
-					
-				</div>-->
-				
-			</div>
+			<div id="vm-list"></div>
 			<div id="vm-view" style="display: none;">
 				<div class="page-header text-center" style="margin-top: -20px;">
 					<h2><small>Click the screen to request a turn and control the computer!</small></h2>
@@ -194,14 +163,6 @@
 						<button style="display:none;" type="button" class="btn btn-warning" id="vote-cancel">Cancel Vote</button>
 						<h4><span class="label label-success">Yes: <span id="vote-label-yes"></span></span> <span class="label label-danger">No: <span id="vote-label-no"></span></span></h4>
 					</div>
-					<!--<div class="progress">
-						<div class="progress-bar progress-bar-success" style="width: 60%">
-							<span>Yes</span>
-						</div>
-						<div class="progress-bar progress-bar-danger" style="width: 40%">
-							<span>No</span>
-						</div>
-					</div>-->
 					<div id="btns">
 						<button class="btn btn-default" type="button" id="turn-btn">Take Turn</button>
 						<button style="display:none;" class="btn btn-default" type="button" id="end-turn-btn">End Turn</button>
@@ -209,7 +170,6 @@
 						<button class="btn btn-default" type="button" id="username-btn" disabled>Change Username</button>
 						<button style="display: none;" class="btn btn-default" type="button" id="vote-btn">Vote for Reset</button>
 						<button style="display: none;" class="btn btn-default" type="button" id="pip-btn">Picture-in-Picture</button>
-						<button class="btn btn-default" type="button" id="upload-options-btn">Upload File</button>
 						<div id="admin-btns" style="display:none;"><br>
 							<div class="btn-group" id="power-dropdown">
 							  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Power <span class="caret"></span></button>
@@ -223,13 +183,6 @@
 							<button style="display:none;" class="btn btn-default" type="button" id="end-current-turn-btn">End Current Turn</button>
 							<button style="display:none;" class="btn btn-default" type="button" id="bypass-turn-btn">Bypass Turn</button>
 							<button style="display:none;" class="btn btn-default" type="button" data-toggle="modal" data-target="#vm-monitor-modal" id="vm-monitor-btn">VM Monitor</button>
-						</div>
-						<div id="file-upload" class="form-inline" style="display: none;">
-							<input class="form" id="upload-input" type="file">
-							<!--<label for="filename-box">Filename</label><input type="text" class="form-control" id="filename-box" placeholder="filename">-->
-							<label><input type="checkbox" id="upload-run-chkbox" checked>Run file</label>
-							<button class="btn btn-default" type="button" id="upload-btn" disabled>Upload</button>
-							<div id="upload-wait-time"></div>
 						</div>
 					</div>
 					<h3 style="height: 1em;"><small id="status"></small></h3>

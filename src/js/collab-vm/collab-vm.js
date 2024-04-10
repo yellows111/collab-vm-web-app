@@ -26,7 +26,6 @@ var hasTurn = false;
 var modPerms = 0;
 var turnInterval = null;
 var voteInterval = null;
-var uploadInterval = null;
 /**
  * Whether the user has voted or not.
  * @type {boolean}
@@ -39,17 +38,13 @@ var guac;
 var mouse;
 var keyboard;
 var audioSupported;
-var fileApisSupported;
 var blurSupported;
 var chatSoundOn = true;
-var maxUploadSize = 4096;
-var maxUploadNameLen = 100;
 
-/** @const
- * The maximum size of a file chunk that can be sent
- * when uploading a file.
+/**
+ * An array containing promise resolvers and usernames for the Get IP function
  */
-var uploadChunkSize = 4096;
+var iptasks = [];
 
 /**
  * The current on-screen keyboard, if any.
@@ -69,8 +64,6 @@ var usersWaiting = 0;
 // Name: [UserRank, WaitingIndex]
 /** {dict} */
 var usersData = {};
-/** {dict} */
-var usersList = {};
 /** @type {string} */
 window.username = null;
 
@@ -91,32 +84,6 @@ var connected = false;
  * List of the nodes this instance of the webapp knows about.
  */
 var nodeList = [];
-
-/**
- * File upload operation.
- * @enum {number}
- */
-var fileOp = {
-	BEGIN: 0,
-	MIDDLE: 1,
-	END: 2,
-	STOP: 3
-}
-
-/**
- * File upload response from server.
- * @enum {number}
- */
-var fileResponse = {
-	BEGIN: 0,
-	ACK: 1,
-	FINISHED: 2,
-	STOP: 3,
-	WAIT_TIME: 4,
-	FAILED: 5,
-	UPLOAD_IN_PROGRESS: 6,
-	TIMED_OUT: 7
-};
 
 /**
  * Gets the CSS class associated with a user rank.
@@ -161,21 +128,17 @@ function cvm_unescape(str) {
 
 var admin = {
 	loginTimesPressed: 0,
-	
-	// I HATE THIS
-	copyIP: function(name, ip){},
+
+	copyIP: async function(user) {
+		var ip = await this.getIP(user);
+		navigator.clipboard.writeText(ip);
+	},
 
 	getIP: function(user) {
-		tunnel.sendMessage("admin", 19, user);
-		// why is this assigned at runtime?
-		this.copyIP = (name, ip) => {
-			if (navigator.clipboard && navigator.clipboard.writeText) {
-				navigator.clipboard.writeText(`${name} - ${ip}`);
-			} else {
-				// If the browser doesn't support writing text to the clipboard, send the IP to chat instead.
-				chatMessage("",`${name} - ${ip}`);
-			}
-		};
+		return new Promise(res => {
+			iptasks.push({username: user, res: res});
+			tunnel.sendMessage("admin", 19, user);
+		});
 	},
 
 	// I've named this "VM Monitor" instead of "QEMU Monitor" in the case that more hypervisors are supported in the future.
@@ -235,7 +198,7 @@ function addTableRow(table, user, userData) {
 	data.className = "list-group-item";
 
 	var userHTML;
-	if ((usersData[username][0] == 2 || usersData[username][0] == 3) && user !== username) {
+	if (usersData[username] && (usersData[username][0] == 2 || usersData[username][0] == 3) && user !== username) {
 		// Maybe eventually I should somehow categorise these, this is getting crowded
 		userHTML = `<div class='dropdown-toggle' data-toggle='dropdown' role='button' aria-haspopup='true' aria-expanded='false'>${user}<span class='caret'></span></div><ul class='dropdown-menu'>`;
 		if (modPerms & 64) userHTML += `<li><a href='#' onclick='GetAdmin().adminInstruction(16,"${user}");return false;'>End Turn</a></li>`;
@@ -247,7 +210,7 @@ function addTableRow(table, user, userData) {
 			userHTML += `<li><a href='#' onclick='GetAdmin().adminInstruction(14,"${user}",1);return false;'>Indefinite Mute</a></li>`;
 			userHTML += `<li><a href='#' onclick='GetAdmin().adminInstruction(14,"${user}",2);return false;'>Unmute</a></li>`;
 		};
-		if (modPerms & 256) userHTML += `<li><a href='#' onclick='GetAdmin().getIP("${user}");return false;'>Copy IP</a></li>`;
+		if (modPerms & 256) userHTML += `<li><a href='#' onclick='GetAdmin().copyIP("${user}");return false;'>Copy IP</a></li>`;
 		userHTML += "</ul>";
 	} else {
 		userHTML = user;
@@ -476,10 +439,10 @@ function displayLoading(show) {
  */
 function displayVMList(show) {
 	if (show === false) {
-		$("#vm-list").empty().hide();
+		$("#vm-list").hide();
 	} else {
 		$("#vm-view").hide();
-		$("#vm-list").empty().show();
+		$("#vm-list").show();
 	}
 }
 
@@ -494,55 +457,6 @@ function displayVMView(show) {
 		$("#vm-list").hide();
 		$("#vm-view").show();
 		osk.resize($("#kbd-container").width());
-	}
-}
-
-/**
- * Displays a list of VMs along with their thumbnails and names.
- * @param {Array<string>} list An array consisting of 3 values for each VM:
- * the short name, the display name and the base64-encoded thumbnail.
- */
-function updateVMList(list) {
-	var vmList = $("#vm-list");
-	if (list.length) {
-		console.warn("It appears you are using a serverAddress which has nodes.\nThis can create undefined behavior when parsed.\nPlease use a serverAddress which isn't hosting nodes.");
-		for (var i = 0; i < list.length; i += 3) {
-			var e = $('<div class="col-sm-5 col-md-3"><a class="thumbnail" href="#' + common.rootDir + "/" + list[i] + '">' +
-				(list[i+2] ? '<img src="data:image/png;base64,' + list[i+2] + '"/>' : "") +
-				'<div class="caption bg-danger"><h4>' + list[i+1] + '<div class="text-danger">This webapp is configured incorrectly!</div>' + '</h4></div></a></div>');
-			// Add click handler to anchor tag for history
-			e.children().first().click(function(e) {
-				// Check that the link was clicked with the left mouse button
-				if (e.which === 1) {
-					e.preventDefault();
-					var name =  this.getAttribute("href").substr(this.getAttribute("href").lastIndexOf('/')+1);
-					common.debugLog("connect " + name);
-					vmName = name;
-					tunnel.sendMessage("connect", vmName);
-				}
-			});
-			// If there is an image and the NSFW warning is visible, it should be censored
-			if (nsfwWarn && list[i+2])
-				e.children().first().children().first().addClass(blurSupported ? "censor" : "censor-fallback");
-			vmList.append(e);
-		}
-	}
-	else {
-		// Prevent the bogus display of "No VMs online" if there are list entries
-		if(![...document.getElementById("vm-list").children].length || !nodeList.length)
-			vmList.html("No VMs online");
-	
-	}
-}
-
-function getVMList() {
-	displayLoading();
-	displayVMList();
-	if (tunnel && tunnel.state === Guacamole.Tunnel.State.OPEN) {
-		// Disconnect if we are connected
-		if (connected)
-			tunnel.sendMessage("connect");
-		tunnel.sendMessage("list");
 	}
 }
 
@@ -602,59 +516,6 @@ function updateActions(parameters) {
 	else
 		$("#vote-btn").hide();
 	
-	// Uploads enabled
-	if (parameters[2] === "1") {
-		$("#upload-options-btn").show();
-		maxUploadSize = parseInt(parameters[3]);
-		maxUploadNameLen = parseInt(parameters[4]);
-		if (uploadInterval === null && $("#upload-input")[0].files.length)
-			$("#upload-btn, #upload-input").prop("disabled", false);
-	} else {
-		$("#upload-options-btn").hide();
-		$("#file-upload").hide("fast");
-	}
-}
-
-function startFileUpload(uploadId) {
-	var files = $("#upload-input")[0].files;
-	if (files.length !== 1)
-		return;
-	var file = files[0];
-	var xhr = new XMLHttpRequest();
-	xhr.open("POST", location.protocol + "//" + common.serverAddress + "/upload?" + uploadId, true);
-	xhr.responseType = "text";
-	xhr.setRequestHeader("Content-Type", "application/octet-stream");
-	//xhr.onload = function(e) { console.log(xhr.response); };
-	var progressBar = document.getElementById("upload-progress");
-	xhr.upload.onprogress = function(e) {
-		if (e.lengthComputable) {
-			var progress = (e.loaded / e.total) * 100;
-			$("#upload-wait-time").html("Uploading... (" + Math.round(progress) + "%)");
-		}
-	  };
-	xhr.send(file);
-}
-
-function displayUploadWaitTime(waitTime) {
-	if (waitTime > 0) {
-		$("#upload-btn").prop("disabled", true);
-		if (uploadInterval !== null)
-			clearInterval(uploadInterval);
-		uploadInterval = waitingTimer(function(seconds) {
-				if (seconds !== null) {
-					$("#upload-wait-time").html("Please wait " + seconds + " seconds before uploading another file.");
-				} else {
-					uploadInterval = null;
-					$("#upload-wait-time").html("");
-					$("#upload-input").prop("disabled", false);
-					if ($("#upload-input")[0].files.length)
-						$("#upload-btn").prop("disabled", false);
-				}
-			}, waitTime);
-	} else {
-		$("#upload-wait-time").html("");
-		$("#upload-btn, #upload-input").prop("disabled", false);
-	}
 }
 
 // long live DartzCodingTM
@@ -736,8 +597,6 @@ function InitalizeGuacamoleClient() {
 			var e = guac.getDisplay().getElement();
 			if (e.parentNode == display)
 				display.removeChild(e);
-			// Clear VM list
-			$("#vm-list").empty();
 			// Reset variables
 			connected = false;
 			users = [];
@@ -780,9 +639,6 @@ function InitalizeGuacamoleClient() {
 			
 			if (vmName) {
 				tunnel.sendMessage("connect", vmName);
-			} else {
-				displayVMList();
-				tunnel.sendMessage("list");
 			}
 			// Add display element
 			display.appendChild(guac.getDisplay().getElement());
@@ -793,13 +649,7 @@ function InitalizeGuacamoleClient() {
 
 		}
 	};
-	
-	// VM List handler
-	guac.onlist = function(parameters) {
-		updateVMList(parameters);
-		displayLoading(false);
-	};
-	
+
 	// Turn handler
 	guac.onturn = function(parameters) {
 		common.debugLog("Turn: ");
@@ -935,7 +785,6 @@ function InitalizeGuacamoleClient() {
 				break;
 			case 2: // Disconnected
 				connected = false;
-				//cancelUpload = true;
 				hasTurn = false;
 				$("#turn-btn").show();
 				$("#end-turn-btn").hide();
@@ -943,8 +792,6 @@ function InitalizeGuacamoleClient() {
 					clearInterval(turnInterval);
 				if (voteInterval !== null)
 					clearInterval(voteInterval);
-				if (uploadInterval !== null)
-					clearInterval(uploadInterval);
 
 				// Redirect to VM list
 				History.pushState(null, null, common.rootDir);
@@ -1012,7 +859,11 @@ function InitalizeGuacamoleClient() {
 			};
 		} else if (parameters[0] === "19") {
 			console.log(`${parameters[1]} - ${parameters[2]}`); // Log it in case this crappy copy method fails
-			admin.copyIP(parameters[1], parameters[2]);
+			var tsk = iptasks.find(t => t.username == parameters[1]);
+			if (tsk) {
+				tsk.res(parameters[2]);
+				iptasks.splice(iptasks.indexOf(tsk), 1);
+			}
 		};
 	};
 	
@@ -1077,40 +928,6 @@ function InitalizeGuacamoleClient() {
 				hasVoted = false;
 			break;
 		}
-	}
-	
-	guac.onfile = function(parameters) {
-		switch (parseInt(parameters[0])) {
-		case fileResponse.BEGIN:
-			/*common.debugLog("File upload started");
-			common.debugLog("Upload ID: " + parameters[1]);*/
-			startFileUpload(parameters[1]);
-			break;
-		case fileResponse.FINISHED:
-			$("#upload-input").val(null).prop("disabled", false);
-			displayUploadWaitTime(parameters.length === 2 ? parseInt(parameters[1]) : 0);
-			break;
-		case fileResponse.WAIT_TIME:
-			displayUploadWaitTime(parseInt(parameters[1]));
-			break;
-		case fileResponse.FAILED:
-			$("#upload-input").val(null).prop("disabled", false);
-			displayUploadWaitTime(parameters.length === 2 ? parseInt(parameters[1]) : 0);
-			alert("File upload failed");
-			break;
-		case fileResponse.TIMED_OUT:
-			$("#upload-input").val(null).prop("disabled", false);
-			displayUploadWaitTime(parameters.length === 2 ? parseInt(parameters[1]) : 0);
-			alert("File upload timed out");
-			break;
-		case fileResponse.UPLOAD_IN_PROGRESS:
-			$("#upload-btn, #upload-input").prop("disabled", true);
-			break;
-		}
-	}
-	
-	guac.onaction = function(parameters) {
-		updateActions(parameters);
 	}
 
 	function showAuthenticationDialog() {
@@ -1229,48 +1046,15 @@ window.multicollab = function(ip, isWss) {
 		
 		for(var i in nodeList) {
 			var thisnode = nodeList[i];
-			
 			var div = document.createElement('div');
 			div.className = 'col-sm-5 col-md-3';
 			var link = document.createElement('a');
 			link.className = 'thumbnail';
 			link.href = '#' + thisnode.url;
 			link.innerHTML = (thisnode.image ? '<img src="data:image/png;base64,' + thisnode.image + '"/>' : '') + '<div class="caption"><h4>' + thisnode.name + '</h4></div>';
-			
+			if (thisnode.url === window.location.hash.substring(1)) openVM(link, prefix, thisnode);
 			link.onclick = function(event) {
-					event.preventDefault();
-					tunnel.onstatechange = null;
-					guac.disconnect(); // kill existing connection
-
-					// can't use thisnode because that's incredibly broken
-					// so we have to do this cursed being to get the node information
-					
-					var elem = event.srcElement;
-					while(elem.hash == undefined)
-						elem = elem.parentElement;
-					
-					var hash = elem.hash;
-					
-					
-					var node = nodeList.find(node => node.url == hash.substring(1));
-					if(node == undefined) {
-						common.debugLog("Node not found?");
-						return;
-					}
-					
-					var display = document.getElementById('display');
-					if(display.firstChild)
-							display.removeChild(display.firstChild);
-						
-					// set up the tunnel for InitalizeGuacamoleClient
-					tunnel = new Guacamole.WebSocketTunnel((location.protocol == "https:" ? "wss://" : "ws://") + node.ip + '/');
-					vmName = node.url;
-					common.serverAddress = node.ip;
-					
-					// connect to server
-					common.debugLog("Connect to multicollab VM " + node.ip);
-					InitalizeGuacamoleClient();
-					guac.connect();
+				openVM(event.target, prefix, thisnode);
 			};
 			div.appendChild(link);
 			vmlist.appendChild(div);
@@ -1282,6 +1066,49 @@ window.multicollab = function(ip, isWss) {
 	};
 	
 	listGuac.connect();
+}
+
+/**
+ * Connect to a VM
+ * @param {string} prefix
+ * @param {string} elem 
+ * @param {string} node 
+ * @returns 
+ */
+function openVM(elem, prefix, node) {
+	// Neither of these should execute now that we've removed the beacon but just in case
+	if (tunnel) tunnel.onstatechange = null;
+	if (guac) guac.disconnect(); // kill existing connection
+
+	// can't use thisnode because that's incredibly broken
+	// so we have to do this cursed being to get the node information
+	
+	while(elem.hash == undefined)
+		elem = elem.parentElement;
+	
+	var hash = elem.hash;
+	
+	
+	var node = nodeList.find(node => node.url == hash.substring(1));
+	if(node == undefined) {
+		common.debugLog("Node not found?");
+		return;
+	}
+	
+	var display = document.getElementById('display');
+	if(display.firstChild)
+			display.removeChild(display.firstChild);
+		
+	// set up the tunnel for InitalizeGuacamoleClient
+	// WHY were we not using prefix here?
+	tunnel = new Guacamole.WebSocketTunnel(prefix + node.ip + '/');
+	vmName = node.url;
+	common.serverAddress = node.ip;
+	
+	// connect to server
+	common.debugLog("Connect to multicollab VM " + node.ip);
+	InitalizeGuacamoleClient();
+	guac.connect();
 }
 
 $(window).on("statechange", function() {
@@ -1398,71 +1225,6 @@ $(function() {
 		}
 	});
 	
-	// TODO: Add drag and drop support for file uploads
-	/*$("#display").on("dragenter", function(e) {
-		$(this).addClass("drag");
-		e.stopPropagation();
-		e.preventDefault();
-	});
-	
-	$("#display").on("dragover", function(e) {
-		e.stopPropagation();
-		e.preventDefault();
-	});
-	
-	$("#display").on("dragleave", function(e) {
-		$(this).removeClass("drag");
-		e.stopPropagation();
-		e.preventDefault();
-	});*/
-	
-	fileApisSupported = !!(window.File && window.FileReader && window.FileList && window.Blob && window.ArrayBuffer && window.Uint8Array);
-	
-	$("#upload-options-btn").click(fileApisSupported ? function() {
-		var fileUpload = $("#file-upload");
-		if (fileUpload.is(":visible"))
-			fileUpload.hide("fast");
-		else
-			fileUpload.show("fast");
-	} : function() { alert("File uploads are not fully supported by your browser."); });
-	
-	if (fileApisSupported) {
-		$("#upload-input").change(function(e) {
-			var files = e.target.files;
-			if (files.length === 1) {
-				var file = files[0];
-				if (file) {
-					if (file.size > maxUploadSize) {
-						alert("File is too big. Max file size is " + maxUploadSize + " bytes.");
-					} else if (file.name.length > maxUploadNameLen) {
-						alert("Filename is too long. Max filename is " + maxUploadNameLen + ".");
-					} else if (/[^\x20-\x7E]|[<>:"/\\\|\?\*]/.test(file.name)) {
-						alert("Filename contains characters that are not allowed.");
-					} else {
-						//$("#filename-box").val(file.name);
-						if (uploadInterval === null) {
-							$("#upload-btn").prop("disabled", false);
-						}
-						return;
-					}
-				}
-			}
-			this.value = null;
-			$("#upload-btn").prop("disabled", true);
-		});
-		
-		$("#upload-btn").click(function() {
-			var files = $("#upload-input")[0].files;
-			if (files.length !== 1)
-				return;
-			var file = files[0];
-			tunnel.sendMessage("file", fileOp.BEGIN, file.name, file.size, $("#upload-run-chkbox").prop("checked") ? 1 : 0);
-			$(this).prop("disabled", true);
-			$("#upload-input").prop("disabled", true);
-			$("#upload-wait-time").html("Uploading...");
-		});
-	}
-	
 	$("#restore-btn").click(function() {
 		tunnel.sendMessage("admin", "8", vmName);
 	});
@@ -1488,16 +1250,16 @@ $(function() {
 		tunnel.sendMessage("admin", "20");
 	});
 	
-	$("#home-btn").attr("href", common.rootDir).click(function(e) {
-		// Check that the link was clicked with the left mouse button
-		if (e.which === 1) {
-			e.preventDefault();
-			if ($("#vm-list").is(":visible")) {
-				getVMList();
-			} else {
-				History.pushState(null, null, this.getAttribute("href"));
-			}
-		}
+	$("#home-btn").attr("href", "#").click(function(e) {
+		// Don't do anything if the user is already on the home page
+		if (!guac) return;
+		// Disconnect from the server
+		guac.disconnect();
+		guac = null;
+		tunnel = null;
+		// Return to the home page
+		$("#vm-view").hide();
+		$("#vm-list").show();
 	});
 	
 	$("#chat-input").keypress(function(e) {
@@ -1593,18 +1355,6 @@ $(function() {
 	
 	if (common.DEBUG_NO_CONNECT)
 		return;
-	
-	// Instantiate client, using a websocket tunnel for communications.
-	tunnel = new Guacamole.WebSocketTunnel((location.protocol == "https:" ? "wss://" : "ws://") + common.serverAddress + "/");
-	
-	// Disable receive timeouts for debugging
-	if (common.DEBUG_NO_TIMEOUT)
-		tunnel.receiveTimeout = 0;
-	
-	common.debugLog("Initalize guacamole client");
-	
-	InitalizeGuacamoleClient();
-	guac.connect();
 	
 	// Add the nodes in the configuration
 	common.additionalNodes.forEach((node) => {
