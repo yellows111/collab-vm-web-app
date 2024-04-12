@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-var Guacamole = Guacamole || {};
+export default function(Guacamole) {
 
 /**
  * The unique ID of this version of the Guacamole JavaScript API. This ID will
@@ -31,3 +31,4 @@ var Guacamole = Guacamole || {};
  * @type String
  */
 Guacamole.API_VERSION = "0.9.5";
+}

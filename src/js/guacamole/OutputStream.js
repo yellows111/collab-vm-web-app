@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-var Guacamole = Guacamole || {};
+export default function(Guacamole) {
 
 /**
  * Abstract stream which can receive data.
@@ -69,3 +69,4 @@ Guacamole.OutputStream = function(client, index) {
     };
 
 };
+}

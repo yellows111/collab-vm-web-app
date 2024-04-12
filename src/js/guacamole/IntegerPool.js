@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-var Guacamole = Guacamole || {};
+export default function(Guacamole) {
 
 /**
  * Integer pool which returns consistently increasing integers while integers
@@ -73,3 +73,4 @@ Guacamole.IntegerPool = function() {
     };
 
 };
+}

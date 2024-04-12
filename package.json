@@ -2,22 +2,20 @@
   "name": "collab-vm-web-app",
   "version": "1.0.0",
   "scripts": {
-    "build": "gulp",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "parcel build --no-source-maps --dist-dir build --public-url '.' src/html/index.html",
+    "serve": "parcel serve --dist-dir build src/html/index.html"
   },
   "author": "Dartz & Cosmic Sans",
   "license": "Apache-2.0",
   "devDependencies": {
-    "gulp": "^4.0.2",
-    "gulp-concat": "^2.6.1",
-    "gulp-htmlmin": "^5.0.1",
-    "gulp-inject": "^5.0.4",
-    "gulp-rename": "^1.4.0",
-    "gulp-sourcemaps": "^2.6.5",
-    "gulp-terser": "^1.2.0"
+    "@parcel/plugin": "^2.12.0",
+    "parcel": "^2.12.0",
+    "parcel-plugin-static-files-copy": "^2.6.0",
+    "parcel-reporter-static-files-copy": "^1.5.3"
   },
   "dependencies": {
-    "gulp-append-prepend": "^1.0.8",
-    "gulp-rollup": "^2.17.0"
-  }
+    "bootstrap": "^3.3.7",
+    "jquery": "^3.2.1"
+  },
+  "type": "module"
 }

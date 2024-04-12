@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-var Guacamole = Guacamole || {};
+export default function(Guacamole) {
 
 /**
  * A reader which automatically handles the given input stream, returning
@@ -76,4 +76,4 @@ Guacamole.ArrayBufferReader = function(stream) {
      */
     this.onend = null;
 
-};
+};}

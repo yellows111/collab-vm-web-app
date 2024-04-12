@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-var Guacamole = Guacamole || {};
+export default function(Guacamole) {
 
 /**
  * Provides cross-browser and cross-keyboard keyboard for a specific element.
@@ -1123,3 +1123,4 @@ Guacamole.Keyboard.ModifierState.fromKeyboardEvent = function(e) {
     return state;
     
 };
+}

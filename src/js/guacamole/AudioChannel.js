@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-var Guacamole = Guacamole || {};
+export default function(Guacamole) {
 
 /**
  * Abstract audio channel which queues and plays arbitrary audio data.
@@ -247,3 +247,4 @@ Guacamole.AudioChannel.Packet = function(mimetype, data) {
     }
 
 };
+}

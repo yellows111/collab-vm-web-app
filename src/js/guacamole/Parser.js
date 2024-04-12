@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-var Guacamole = Guacamole || {};
+export default function(Guacamole) {
 
 /**
  * Simple Guacamole protocol parser that invokes an oninstruction event when
@@ -157,3 +157,4 @@ Guacamole.Parser = function() {
     this.oninstruction = null;
 
 };
+}

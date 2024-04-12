@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-var Guacamole = Guacamole || {};
+export default function(Guacamole) {
 
 /**
  * Dynamic on-screen keyboard. Given the layout object for an on-screen
@@ -946,3 +946,4 @@ Guacamole.OnScreenKeyboard.Key = function(template, name) {
     this.requires = template.requires || [];
 
 };
+}

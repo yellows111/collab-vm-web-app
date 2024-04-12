@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-var Guacamole = Guacamole || {};
+export default function(Guacamole) {
 
 /**
  * A writer which automatically writes to the given output stream with arbitrary
@@ -100,4 +100,4 @@ Guacamole.ArrayBufferWriter = function(stream) {
      */
     this.onack = null;
 
-};
+};}

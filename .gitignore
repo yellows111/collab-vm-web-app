@@ -1,6 +1,7 @@
-build/**/*
-node_modules/**/*
+build/
+node_modules/
 build.*
+.parcel-cache/
 
 # HISTORIC old drop that the webapp doesn't use
 src/html/guacamole.min.js

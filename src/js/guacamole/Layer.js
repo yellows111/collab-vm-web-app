@@ -20,7 +20,7 @@
  * THE SOFTWARE.
  */
 
-var Guacamole = Guacamole || {};
+export default function(Guacamole) {
 
 /**
  * Abstract ordered drawing surface. Each Layer contains a canvas element and
@@ -902,3 +902,4 @@ Guacamole.Layer.Pixel = function(r, g, b, a) {
     this.alpha = a;
 
 };
+}
