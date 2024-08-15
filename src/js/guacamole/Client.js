@@ -587,6 +587,10 @@ Guacamole.Client = function(tunnel) {
 			// Keep-alive
 			tunnel.sendMessage("nop");
 		},
+        "flag": function(parameters) {
+            if (guac_client.onflag)
+                guac_client.onflag(parameters);
+        },
         "ack": function(parameters) {
 
             var stream_index = parseInt(parameters[0]);
