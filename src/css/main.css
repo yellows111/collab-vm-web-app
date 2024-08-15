@@ -484,3 +484,12 @@ table {
   display: flex;
   flex-wrap: wrap;
 }
+
+.userlist-flag {
+  padding-right: 0.5rem;
+  font-style: normal;
+}
+
+.userlist-flag:empty {
+  display: none;
+}

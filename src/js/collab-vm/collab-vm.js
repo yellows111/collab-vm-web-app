@@ -59,7 +59,7 @@ var nsfwWarn = true;
 var users = [];
 // Number of users in queue plus one
 var usersWaiting = 0;
-// Name: [UserRank, WaitingIndex]
+// Name: [UserRank, WaitingIndex, CountryCode]
 /** {dict} */
 var usersData = {};
 /** @type {string} */
@@ -100,6 +100,16 @@ function getRankClass(rank) {
 		case 3: // Moderator
 			return "moderator";
 	}
+}
+
+/**
+ * Gets the flag emoji for a country code.
+ * @param {string} countryCode
+ * @returns {string}
+ */
+function getFlagEmoji(countryCode) {
+	if (countryCode.length !== 2) throw new Error('Invalid country code');
+	return String.fromCodePoint(...countryCode.toUpperCase().split('').map(char =>  127397 + char.charCodeAt(0)));
 }
 
 /**
@@ -211,7 +221,11 @@ function addTableRow(table, user, userData) {
 		if (modPerms & 256) userHTML += `<li><a href='#' onclick='GetAdmin().copyIP("${user}");return false;'>Copy IP</a></li>`;
 		userHTML += "</ul>";
 	} else {
-		userHTML = user;
+		if(userData.countryCode != null) {
+			userHTML = `<span class='userlist-flag'>${getFlagEmoji(userData.countryCode)}</span> ${user}`;
+		} else {
+			userHTML = user;
+		}
 	}
 	data.innerHTML = userHTML;
 	
@@ -534,18 +548,18 @@ function InitalizeGuacamoleClient() {
 	// and to fix performance issues even more just disable this completely for now
 	// document.pictureInPictureEnabled ? $("#pip-btn").show() : $("#pip-btn").hide();
 
-	$("#vm-monitor-send").click(function() {
+	$("#vm-monitor-send").off('click').on('click', function() {
 		admin.vmMonitor.sendFromDialog();
 	});
 
-	$("#vm-monitor-input").keypress(function(key) {
+	$("#vm-monitor-input").off('keypress').on('keypress', function(key) {
 		if (key.which === 13) {
 			admin.vmMonitor.sendFromDialog();
 		}
 	});
 
 	$("#username-btn").prop("disabled", false);
-	$("#username-btn").click(function() {
+	$("#username-btn").off('click').on('click', function() {
 		if (authUrl === "") {
 			$("#username-modal").modal("show");
 		} else {
@@ -560,8 +574,7 @@ function InitalizeGuacamoleClient() {
 					var response = JSON.parse(xhr.response);
 					if (!response.success) alert("Failed to revoke session: " + response.error);
 					localStorage.removeItem("collabvm_session_" + new URL(authUrl).host);
-					// Once the home button is fixed we should return to the VM list instead of this
-					window.location.reload();
+					$("#home-btn").trigger('click');
 				});
 				xhr.send(JSON.stringify({ token: session }));
 				loggedIn = false;
@@ -572,7 +585,7 @@ function InitalizeGuacamoleClient() {
 			}
 		}
 	});
-	$("#chat-user").on("click", adminLoginBoxClicker);
+	$("#chat-user").on('click', adminLoginBoxClicker);
 	
 	// Error handler
 	guac.onerror = function(error) {
@@ -596,7 +609,6 @@ function InitalizeGuacamoleClient() {
 			if (e.parentNode == display)
 				display.removeChild(e);
 			// Reset variables
-			connected = false;
 			users = [];
 			usersWaiting = 0;
 			usersData = {};
@@ -622,11 +634,20 @@ function InitalizeGuacamoleClient() {
 			$("#chat-send-btn").prop("disabled", true);
 			$("#chat-input").prop("disabled", true);
 			$("#chat-user").hide().html("");
-			// Attempt to reconnect in 10 seconds
-			setTimeout(function (){tunnel.state = Guacamole.Tunnel.State.CONNECTING; guac.connect();}, 10000);
+			// Attempt to reconnect in 10 seconds, if the user is still viewing the VM
+			if(connected) {
+				setTimeout(function() {
+					tunnel.state = Guacamole.Tunnel.State.CONNECTING; guac.connect()
+				}, 10000);
+			}
+			connected = false;
 		} else if (state == Guacamole.Tunnel.State.OPEN) {
 			hasVoted = false;
 			displayLoading();
+			var shouldHideCountryFlag = localStorage.getItem("collabvm_hide_country_flag") === "1";
+			if (shouldHideCountryFlag) {
+				tunnel.sendMessage("noflag");
+			}
 			
 			// Request a username
 			window.username = getCookie("username");
@@ -711,7 +732,7 @@ function InitalizeGuacamoleClient() {
 		activateOSK(hasTurn);
 		displayTable();
 	};
-	
+
 	// Rename Handler
 	guac.onrename = function(parameters) {
 		if (parameters[0] === "0") {
@@ -958,6 +979,13 @@ function InitalizeGuacamoleClient() {
 		}
 	}
 
+	guac.onflag = function(parameters) {
+		for (var i = 0; i < parameters.length; i += 2) {
+			var userData = usersData[parameters[i]];
+			userData.countryCode = parameters[i+1];
+		}
+	}
+
 	guac.onlogin = function(parameters) {
 		if(parameters[0] === "1") {
 			$("#username-btn").html("Logout");
@@ -1050,6 +1078,11 @@ window.multicollab = function(ip, isWss) {
 			link.className = 'thumbnail';
 			link.href = '#' + thisnode.url;
 			link.innerHTML = (thisnode.image ? '<img src="data:image/png;base64,' + thisnode.image + '"/>' : '') + '<div class="caption"><h4>' + thisnode.name + '</h4></div>';
+			if (thisnode.image && common.blurNodes.indexOf(thisnode.url) !== -1) {
+				var img = link.getElementsByTagName('img')[0];
+				// Not using 'censor' class to avoid it being removed by NSFW warning code later
+				img.style.filter = 'blur(15px)';
+			}
 			if (thisnode.url === window.location.hash.substring(1)) openVM(link, prefix, thisnode);
 			link.onclick = function(event) {
 				openVM(event.target, prefix, thisnode);
@@ -1122,7 +1155,7 @@ $(window).on("statechange", function() {
 		warnText.css("background-color", "white");
 	}
 	
-	$("#nsfw-cont-btn").click(function() {
+	$("#nsfw-cont-btn").on('click', function() {
 		displayNsfwWarn(false);
 		if ($("#no-warn-chkbox").prop("checked")) {
 			setCookie("no-nsfw-warn-v2", "1", 365);
@@ -1143,7 +1176,7 @@ $(window).on("statechange", function() {
 			guac.sendKeyEvent(0, keysym);
 	};
 	
-	$("#osk-btn").click(function() {
+	$("#osk-btn").on('click', function() {
 		var kbd = $("#kbd-outer");
 		if (kbd.is(":visible"))
 			kbd.hide("fast");
@@ -1151,27 +1184,27 @@ $(window).on("statechange", function() {
 			kbd.show("fast");
 	});
 	
-	$("#turn-btn").click(function() {
+	$("#turn-btn").on('click', function() {
 		if(tunnel.state == Guacamole.Tunnel.State.OPEN)
 			tunnel.sendMessage("turn");
 	});
 
-	$("#end-turn-btn").click(function() {
+	$("#end-turn-btn").on('click', function() {
 		if(tunnel.state == Guacamole.Tunnel.State.OPEN)
 			tunnel.sendMessage("turn","0");
 	});
 
-	$(window).resize(function() {
+	$(window).on('resize', function() {
 		if (osk)
 			osk.resize($("#kbd-container").width());
 	});
 	
-	$("#vote-btn").click(function() {
+	$("#vote-btn").on('click', function() {
 		hasVoted = true;
 		tunnel.sendMessage("vote", "1");
 	});
 	
-	$("#vote-yes").click(function() {
+	$("#vote-yes").on('click', function() {
 		if (!hasVoted) {
 			hasVoted = true;
 			tunnel.sendMessage("vote", "1");
@@ -1179,7 +1212,7 @@ $(window).on("statechange", function() {
 		}
 	});
 	
-	$("#vote-no").click(function() {
+	$("#vote-no").on('click', function() {
 		if (!hasVoted) {
 			hasVoted = true;
 			tunnel.sendMessage("vote", "0");
@@ -1187,15 +1220,15 @@ $(window).on("statechange", function() {
 		}
 	});
 
-	$("#vote-cancel").click(function() {
+	$("#vote-cancel").on('click', function() {
 		tunnel.sendMessage("admin", "13", 0);
 	});
 
-	$("#vote-pass").click(function() {
+	$("#vote-pass").on('click', function() {
 		tunnel.sendMessage("admin", "13", 1);
 	});
 	
-	$("#vote-dismiss").click(function() {
+	$("#vote-dismiss").on('click', function() {
 		$("#vote-alert").hide();
 	});
 	
@@ -1203,7 +1236,7 @@ $(window).on("statechange", function() {
 		$("#username-box").val(username);
 	});
 
-	$("#username-ok-btn").click(function() {
+	$("#username-ok-btn").on('click', function() {
 		var newUsername = $("#username-box").val().trim();
 		if (newUsername) {
 			$('#username-modal').modal("hide");
@@ -1215,7 +1248,7 @@ $(window).on("statechange", function() {
 		}
 	});
 
-	$("#username-box").keydown(function(e) {
+	$("#username-box").on('keydown', function(e) {
 		if (e.which === 13) {
 			// Enter key
 			e.preventDefault();
@@ -1223,19 +1256,19 @@ $(window).on("statechange", function() {
 		}
 	});
 	
-	$("#restore-btn").click(function() {
+	$("#restore-btn").on('click', function() {
 		tunnel.sendMessage("admin", "8", vmName);
 	});
 	
-	$("#reboot-btn").click(function() {
+	$("#reboot-btn").on('click', function() {
 		tunnel.sendMessage("admin", "10", vmName);
 	});
 	
-	$("#clear-turn-queue-btn").click(function() {
+	$("#clear-turn-queue-btn").on('click', function() {
 		tunnel.sendMessage("admin", "17", vmName);
 	});
 	
-	$("#end-current-turn-btn").click(function() {
+	$("#end-current-turn-btn").on('click', function() {
 		for (var user in usersData) {
 			if (usersData[user][1] == 1) {
 				tunnel.sendMessage("admin", "16", user);
@@ -1244,14 +1277,15 @@ $(window).on("statechange", function() {
 		};
 	});
 
-	$("#bypass-turn-btn").click(function() {
+	$("#bypass-turn-btn").on('click', function() {
 		tunnel.sendMessage("admin", "20");
 	});
 	
-	$("#home-btn").attr("href", "#").click(function(e) {
+	$("#home-btn").attr("href", "#").on('click', function(e) {
 		// Don't do anything if the user is already on the home page
 		if (!guac) return;
 		// Disconnect from the server
+		connected = false;
 		guac.disconnect();
 		guac = null;
 		tunnel = null;
@@ -1260,7 +1294,7 @@ $(window).on("statechange", function() {
 		$("#vm-list").show();
 	});
 	
-	$("#chat-input").keypress(function(e) {
+	$("#chat-input").on('keypress', function(e) {
 		if (e.which === 13) {
 			// Enter key sends chat message
 			e.preventDefault();
@@ -1274,7 +1308,7 @@ $(window).on("statechange", function() {
 			this.value = this.value.substr(0, maxChatMsgLen);
 	});
 	
-	$("#chat-send-btn").click(function() {
+	$("#chat-send-btn").on('click', function() {
 		var chat = $("#chat-input");
 		var msg = chat.val().trim();
 		if (guac.currentState === Guacamole.Client.CONNECTED && msg) {
@@ -1283,15 +1317,16 @@ $(window).on("statechange", function() {
 		}
 	});
 	
-	$("#chat-sound-btn").click(function() {
+	$("#chat-sound-btn").on('click', function() {
 		setChatSoundOn(!chatSoundOn);
 		setCookie("chat-sound", chatSoundOn ? "1" : "0", 365);
 	});
 
-	$("#authentication-login-btn").click(function() {
+	$("#authentication-login-btn").on('click', function() {
 		var xhr = new XMLHttpRequest();
 		var connectingUsername = $("#auth-username-box").val().trim();
 		var connectingPassword = $("#auth-password-box").val();
+		var hideCountryFlag = $("#auth-hide-country-flag").prop("checked");
 		var captchaId = $("#authentication-captcha").children("iframe").attr("data-hcaptcha-widget-id");
 		var captchaResponse = hcaptcha.getResponse(captchaId);
 		if(captchaResponse === "") {
@@ -1314,6 +1349,9 @@ $(window).on("statechange", function() {
 					localStorage.setItem("collabvm_session_" + new URL(authUrl).host, response.token);
 					session = response.token;
 					tunnel.sendMessage("login", response.token);
+					if(hideCountryFlag) {
+						localStorage.setItem("collabvm_hide_country_flag", "1");
+					}
 					// we have a token we're done with this dialog
 					$("#authentication-modal").modal("hide");
 				} else {
@@ -1374,6 +1412,6 @@ window.GetAdmin = function() {
 }
 
 // Disconnect on close
-window.onunload = function() {
+window.onbeforeunload = function() {
 	guac.disconnect();
 }
